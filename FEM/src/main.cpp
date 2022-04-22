@@ -56,7 +56,6 @@ int main()
 	std::ofstream resout("output/result.txt");
 
 	// Если не указать 4 агрумент (известную функцию), то просто выведется ответ.
-	prettyPrint(std::cout, solution, FemSolver.GetGridData(), testFunction);
 	prettyPrint(resout, solution, FemSolver.GetGridData());
 }
 

@@ -17,10 +17,10 @@ public:
 	auto& GetGgl() { return m_Ggl; }
 
 	void ZeroOutRowAndCol(uint32_t row);
-	std::vector<double> MultiplyByVector(const std::vector<double>& vector);
+	std::vector<double> MultiplyByVector(const std::vector<double>& vector) const;
 	void Print(std::ostream& out);
 	
-	std::vector<double> operator *(const std::vector<double>& vector) { return MultiplyByVector(vector); }
+	std::vector<double> operator *(const std::vector<double>& vector) const { return MultiplyByVector(vector); }
 
 private:
 	std::vector<uint32_t> m_Ig;

@@ -2,13 +2,14 @@
 #include <utility>
 #include <ostream>
 #include <fstream>
+#include <format>
 
 #include "FEMSolver.h"
 #include "functions.h"
 #include "GridData.h"
 
 FEMSolver::FEMSolver(const std::string& path) : 
-	m_Permeabilities(1, { 1.0, INFINITY }), m_Phi(1.0), m_Saturation(1.0)
+	m_Permeabilities(1, { 1.0, std::numeric_limits<double>::infinity() }), m_Phi(1.0), m_Saturation(1.0)
 {
 	LoadMode(path);
 	switch (m_Mode)
@@ -48,6 +49,11 @@ void FEMSolver::SetGridData(GridData& gridData)
 void FEMSolver::LoadViscosity(const std::string& path)
 {
 	std::ifstream in(path);
+	if (!in)
+	{
+		std::cout << std::format("Was unable to open {}\n", path);
+		return;
+	}
 	uint32_t N;
 	in >> N;
 	m_Viscosity.resize(N);
@@ -62,6 +68,11 @@ void FEMSolver::LoadViscosity(const std::string& path)
 void FEMSolver::LoadDomainData(const std::string& path)
 {
 	std::ifstream in(path);
+	if (!in)
+	{
+		std::cout << std::format("Was unable to open {}\n", path);
+		return;
+	}
 	in >> m_Saturation;
 	in >> m_Phi;
 	uint32_t numberOfPermeabilities;
@@ -78,6 +89,11 @@ void FEMSolver::LoadDomainData(const std::string& path)
 void FEMSolver::LoadMode(const std::string& path)
 {
 	std::ifstream in(path);
+	if (!in)
+	{
+		std::cout << std::format("Was unable to open {}\n", path);
+		return;
+	}
 	std::string mode;
 	in >> mode;
 	if (mode == "BL")
@@ -93,6 +109,11 @@ void FEMSolver::LoadMode(const std::string& path)
 void FEMSolver::LoadPlastPressure(const std::string& path)
 {
 	std::ifstream in(path);
+	if (!in)
+	{
+		std::cout << std::format("Was unable to open {}\n", path);
+		return;
+	}
 	in >> m_PlastPressure;
 }
 

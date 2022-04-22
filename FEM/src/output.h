@@ -1,6 +1,7 @@
 #pragma once
 #include <fstream>
 #include <vector>
+#include <format>
 
 #include "DataStructures.h"
 #include "functions.h"
@@ -54,15 +55,15 @@ inline void prettyPrint(std::ostream& outputStream,  const std::vector<double>& 
 	auto nodes = gridData.Nodes;
 	if (function)
 	{
-		outputStream << "+----------------------------------------------------------------------------------------+\n";
-		outputStream << "|    X    |    Y    |           P          |           T          |         P - T        |\n";
-		outputStream << "+---------+---------+----------------------+----------------------+----------------------+\n";
+		outputStream << std::format("+{:-^88}+\n", "");
+		outputStream << std::format("|{:^9}|{:^9}|{:^22}|{:^22}|{:^22}|\n", "X", "Y", "P", "T", "P - T");
+		outputStream << std::format("+{:-^88}+\n", "");
 	}
 	else
 	{
-		outputStream << "+------------------------------------------+\n";
-		outputStream << "|    X    |    Y    |           P          |\n";
-		outputStream << "+---------+---------+----------------------+\n";
+		outputStream << std::format("+{:-^42}+\n", "");
+		outputStream << std::format("|{:^9}|{:^9}|{:^22}|\n", "X", "Y", "P");
+		outputStream << std::format("+{:-^42}+\n", "");
 	}
 	auto nx = gridData.ModifiedNx;
 	auto step = nx == -1 ? 1 : 2;
@@ -70,13 +71,10 @@ inline void prettyPrint(std::ostream& outputStream,  const std::vector<double>& 
 	for (uint32_t i = 0; i < nodes.size(); i += step)
 	{
 		outputStream << "|";
-		outputStream << std::fixed << std::setw(9) << std::setprecision(3) << nodes[i].X << "|";
-		outputStream << std::fixed << std::setw(9) << std::setprecision(3) << nodes[i].Y << "|";
-		outputStream << std::scientific << std::setw(22) << std::setprecision(DBL_DIG) << res[i] << "|";
+		outputStream << std::format("{:>9.3f}|{:>9.3f}|{:>22.15e}|", nodes[i].X, nodes[i].Y, res[i]);
 		if (function)
 		{
-			outputStream << std::scientific << std::setw(22) << std::setprecision(DBL_DIG) << function(nodes[i].X, nodes[i].Y) << "|";
-			outputStream << std::scientific << std::setw(22) << std::setprecision(DBL_DIG) << function(nodes[i].X, nodes[i].Y) - res[i] << "|\n";
+			outputStream << std::format("{:>22.15e}|{:>22.15e}|\n", function(nodes[i].X, nodes[i].Y), function(nodes[i].X, nodes[i].Y) - res[i]);
 		}
 		else
 		{
@@ -109,12 +107,12 @@ inline void prettyPrint(std::ostream& outputStream,  const std::vector<double>& 
 		}
 		auto rel = sqrt(sum1 / sum2);
 		rel = rel == rel ? rel : 0.0; // rel != rel --> rel == nan.
-		outputStream << "+----------------------------------------------------------------------------------------+\n";
-		outputStream << "|   ||P-T||/||T||   |" << std::scientific << std::setw(68) << std::setprecision(DBL_DIG) << rel << "|\n";
-		outputStream << "+----------------------------------------------------------------------------------------+\n";
+		outputStream << std::format("+{:-^88}+\n", "");
+		outputStream << std::format("|{:^19}|{:>68.15e}|\n", "||P-T||/||T||", rel);
+		outputStream << std::format("+{:-^88}+\n", "");
 	}
 	else 
 	{
-		outputStream << "+------------------------------------------+\n";
+		outputStream << std::format("+{:-^42}+\n", "");
 	}
 }

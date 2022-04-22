@@ -19,18 +19,19 @@ std::pair<std::vector<uint32_t>, std::vector<uint32_t>> generatePortrait(uint32_
 	std::vector<uint32_t> ig, jg;
 	ig.reserve(N);
 	jg.reserve(bigNumberWhichIDontKnowButMoreIThinkAboutItMoreItSeemsToBeLessThanNTimes8);
-	std::vector<uint32_t> listbeg(N * N, 0);
+	std::vector<uint32_t> listbeg(bigNumberWhichIDontKnowButMoreIThinkAboutItMoreItSeemsToBeLessThanNTimes8 * 2, 0);
 	uint32_t listSize = 0;
 
 	for (const auto elem : elements)
 	{
-		for (uint32_t i = 0; i < elem.size(); i++)
+		auto& elemNodes = elem.Nodes;
+		for (uint32_t i = 0; i < elemNodes.size(); i++)
 		{
-			auto k = elem[i];
-			for (uint32_t j = i + 1; j < elem.size(); j++)
+			auto k = elemNodes[i];
+			for (uint32_t j = i + 1; j < elemNodes.size(); j++)
 			{
 				auto ind1 = k;
-				auto ind2 = elem[j];
+				auto ind2 = elemNodes[j];
 				if (ind2 < ind1)
 				{
 					ind1 = ind2;

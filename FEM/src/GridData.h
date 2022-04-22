@@ -18,7 +18,7 @@ public:
 	void Triangulate();
 
 	std::vector<Element> Elements;
-	std::vector<Element> LL;
+	std::vector<NodeIDs> LL;
 	std::vector<Point2D> Nodes;
 
 	Fn2d RhsFunction;

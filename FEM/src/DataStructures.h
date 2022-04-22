@@ -3,7 +3,14 @@
 #include <vector>
 #include <functional>
 
-typedef std::vector<uint32_t> Element;
+using NodeIDs = std::vector<uint32_t>;
+
+struct Element
+{
+	std::vector<uint32_t> Nodes;
+	std::vector<uint32_t> Edges;
+	std::vector<int32_t> EdgeDirections;
+};
 
 struct Point2D
 {

@@ -27,21 +27,12 @@ with open("grid.txt", 'r') as f:
         x = lf[0]
         y = lf[1]
         grid.append({"x" : float(x), "y" : float(y)})
-with open("wells.txt", "r") as f:
-    for line in f.readlines()[1:3]:
-        items = line.split()
-        wells.append({"x0" : float(items[0]), "x1" : float(items[1]), "y0" : float(items[2]), "y1" : float(items[3])})
+
 
 for ind, point in enumerate(grid):
     if ind in bc1_nodes:
         plt.plot(point['x'], point['y'], "rx")
     elif not is_well_point(point, wells):
         plt.plot(point['x'], point['y'], "ko")
-
-for well in wells:
-        plt.plot(well["x0"], well["y0"], "gP")
-        plt.plot(well["x0"], well["y1"], "gP")
-        plt.plot(well["x1"], well["y0"], "gP")
-        plt.plot(well["x1"], well["y1"], "gP")
 
 plt.show()        

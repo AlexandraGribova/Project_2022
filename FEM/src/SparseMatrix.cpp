@@ -23,7 +23,7 @@ void SparseMatrix::ZeroOutRowAndCol(uint32_t row)
 	}
 }
 
-std::vector<double> SparseMatrix::MultiplyByVector(const std::vector<double>& vector)
+std::vector<double> SparseMatrix::MultiplyByVector(const std::vector<double>& vector) const
 {
 	std::vector<double> result(vector.size(), 0.0);
 	for (auto i = 0u; i < vector.size(); i++)
