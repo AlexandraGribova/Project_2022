@@ -28,9 +28,10 @@ private:
 
 	std::vector<double> JacobianModifier();
 
+	double GetEdgeLength(const Element& elem, uint32_t elemNum, uint32_t edgeNum, double width, double height);
+
 private:
 	std::vector<double> m_Fluxes;
-	std::vector<std::vector<Vec2D>> m_PrecalculatedGradXiIntegral;
 
 	BasisType m_Mode;
 };

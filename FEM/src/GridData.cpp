@@ -250,10 +250,11 @@ void GridData::SetupEdges()
 		for (auto elemNum = 0u; elemNum < Elements.size(); elemNum++)
 		{
 			auto& elem = Elements[elemNum];
-			elem.Edges.push_back(elemNum);
-			elem.Edges.push_back(elemNum + nX - 1);
-			elem.Edges.push_back(elemNum + nX);
-			elem.Edges.push_back(elemNum + 2 * nX - 1);
+			auto index = elemNum / (nX - 1) * (2 * nX - 1) + elemNum % (nX - 1);
+			elem.Edges.push_back(index);
+			elem.Edges.push_back(index + nX - 1);
+			elem.Edges.push_back(index + nX);
+			elem.Edges.push_back(index + 2 * nX - 1);
 			elem.EdgeDirections = { -1, -1, 1, 1 };
 		}
 	}
@@ -264,19 +265,23 @@ void GridData::SetupEdges()
 			auto& elem = Elements[elemNum];
 			if (!(elemNum & 1)) // |\ 
 			{
-				auto index = elemNum / (2 * nX - 2) * (4 * (nX - 1)) + elemNum % (2 * nX - 2) / 2;
+				auto row = (elemNum / 2) / (nX - 1);
+				auto col = (elemNum / 2) % (nX - 1);
+				auto index = row * (3 * nX - 2) + col;
 
 				elem.Edges.push_back(index);
-				elem.Edges.push_back(index + nX - 1);
-				elem.Edges.push_back(index + nX);
+				elem.Edges.push_back(index + nX - 1 + col);
+				elem.Edges.push_back(index + nX + col);
 				elem.EdgeDirections = { -1, -1, 1 };
 			}
 			else				// \|
 			{
-				auto index = (elemNum - 1) / (2 * nX - 2) * (4 * (nX - 1)) + (elemNum - 1) % (2 * nX - 2) / 2;
-				elem.Edges.push_back(index + nX);
-				elem.Edges.push_back(index + nX + 1);
-				elem.Edges.push_back((elemNum + 1) / (2 * nX - 2) * (4 * (nX - 1)) + (elemNum + 1) % (2 * nX - 2) / 2); // Все это лучше проверить
+				auto row = ((elemNum - 1) / 2) / (nX - 1);
+				auto col = ((elemNum - 1) / 2) % (nX - 1);
+				auto index = row * (3 * nX - 2) + col;
+				elem.Edges.push_back(index + nX + col);
+				elem.Edges.push_back(index + nX + col + 1);
+				elem.Edges.push_back((row + 1) * (3 * nX - 2) + col); // Все это лучше проверить
 				elem.EdgeDirections = { -1, 1, 1 };
 			}
 		}

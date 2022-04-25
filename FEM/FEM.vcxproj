@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\FluxBalancer.cpp" />
     <ClCompile Include="src\FluxCalculator.cpp" />
     <ClCompile Include="src\ApproximationInfo.cpp" />
     <ClCompile Include="src\FEMSolver.cpp" />
@@ -29,6 +30,7 @@
     <ClCompile Include="src\SparseMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\FluxBalancer.h" />
     <ClInclude Include="src\FluxCalculator.h" />
     <ClInclude Include="src\ApproximationInfo.h" />
     <ClInclude Include="src\BasisInfo.h" />

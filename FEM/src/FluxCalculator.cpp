@@ -11,33 +11,33 @@ void FluxCalculator::CalculateFlux(const BasisInfo& basisInfo, const GridData& g
 	// Здесь и далее нормали и т.д. хранятся для четных и нечетных элементов.
 	// Для прямоугольников они совпадают, но мне кажется что это лучше, чем 
 	// каждый раз проверять тип элемента в if. Потом лучше переделать как в indexingFunction (или нет). <-------------------------
+
+	// Очевидно, что помеченное static лучше сделать полями.
 	static auto normals = GetNormals();
 	static auto origins = GetEdgesOrigins();
 	static auto directions = GetEdgesDirections();
 
-	std::vector<std::vector<std::vector<Vec2D>>> precalculatedIntegrals;
-	precalculatedIntegrals.emplace_back(GetPrecalculatedGradXiIntegral(basisInfo, origins[0], directions[0]));
-	precalculatedIntegrals.emplace_back(GetPrecalculatedGradXiIntegral(basisInfo, origins[1], directions[1]));
+	static std::vector<std::vector<std::vector<Vec2D>>> precalculatedIntegrals = {
+		GetPrecalculatedGradXiIntegral(basisInfo, origins[0], directions[0]),
+		GetPrecalculatedGradXiIntegral(basisInfo, origins[1], directions[1])
+	};
 
 	static auto jacobiMod = JacobianModifier();
 
-	static auto integrationPoints = std::vector<double>{ 0.0, 0.5, 1.0 };
-	static auto integrationCoefficients = std::vector<double>{ 1.0, 4.0, 1.0 };
-
 	static auto indF = grid.IndexingFunction;
 
-	// Для треугольников будет сложнее, потому что они разные, пока не буду специально запрашивать грани.
-	// Еще мы считаем интеграл по "локальной грани" и у "перевернутого" треугольника это приводит к 
-	// отрицательному якобиану.
+	// Считаем интеграл по "локальной грани" и у "перевернутого" треугольника это приводит к 
+	// отрицательному якобиану (матрице).
 	for (auto elemNum = 0u; elemNum < grid.Elements.size(); elemNum++)
 	{
 		auto& elem = grid.Elements[elemNum];
-		auto elemDisparity = elemNum & 1; // Нечетность номера элемента для якобиана перевернутого треугольника (disparity - это не нечетность, но мне показалось смешно)
+		auto elemDisparity = elemNum & 1; // Нечетность номера элемента для якобиана (матрицы) перевернутого треугольника (disparity - это не нечетность, но мне показалось смешно)
 		auto&& [width, height] = getDimensions(grid.Nodes, elem.Nodes);
-		auto J = width * height;
 		auto JInv = std::vector<double>{ 1.0 / width, 1.0 / height }; // Храним только диагональ.
 		for (auto edgeNum = 0u; edgeNum < elem.Edges.size(); edgeNum++)
 		{
+			// J - длина ребра
+			auto J = GetEdgeLength(elem, elemNum, edgeNum, width, height);
 			auto& normal = normals[elemDisparity][edgeNum];
 			auto edgeFlux = 0.0;
 			// xi - это типо кси
@@ -227,4 +227,32 @@ std::vector<double> FluxCalculator::JacobianModifier()
 	default:
 		break;
 	}
+}
+
+// Это очень плохая функция (или нет)
+double FluxCalculator::GetEdgeLength(const Element& elem, uint32_t elemNum, uint32_t edgeNum, double width, double height)
+{
+	auto& edges = elem.Edges;
+	if (edges.size() == 4)
+	{
+		if (edgeNum == 0 || edgeNum == 3) return width;
+		return height;
+	}
+	else
+	{
+		// перевернутый треугольник
+		if (elemNum & 1)
+		{
+			if (edgeNum == 0) return std::sqrt(width * width + height * height);
+			else if (edgeNum == 1) return height;
+			return width;
+		}
+		else
+		{
+			if (edgeNum == 0) return width;
+			else if (edgeNum == 1) return height;
+			return std::sqrt(width * width + height * height);
+		}
+	}
+	return 0.0;
 }
