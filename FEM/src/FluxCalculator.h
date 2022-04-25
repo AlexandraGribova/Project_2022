@@ -16,6 +16,11 @@ public:
 	auto& GetFlux() const { return m_Fluxes; }
 
 private:
+
+	std::vector<std::vector<Vec2D>> GetPrecalculatedGradXiIntegral(const BasisInfo& basisInfo, const auto& origins, const auto& directions);
+	// Συ
+	std::vector<std::vector<std::vector<Vec2D>>> GetPrecalculatedGradXiValues(const BasisInfo& basisInfo, const auto& origins, const auto& directions);
+
 	std::vector<std::vector<Vec2D>> GetNormals();
 
 	std::vector<std::vector<Point2D>> GetEdgesOrigins();
@@ -25,6 +30,7 @@ private:
 
 private:
 	std::vector<double> m_Fluxes;
+	std::vector<std::vector<Vec2D>> m_PrecalculatedGradXiIntegral;
 
 	BasisType m_Mode;
 };
