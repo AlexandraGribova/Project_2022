@@ -23,10 +23,12 @@ void GridData::LoadElements(const std::string& path)
 	in >> numberOfEls;
 	in >> numberOfNodes;
 	Elements = std::vector<Element>(numberOfEls);
+
 	for (uint32_t i = 0; i < numberOfEls; i++)
 	{
 		Element el;
 		el.Nodes.reserve(numberOfNodes);
+		el.Edges.reserve(numberOfNodes);
 		for (uint32_t j = 0; j < numberOfNodes; j++)
 		{
 			uint32_t node;
@@ -111,49 +113,52 @@ void GridData::ModifyTriangleGrid()
 	0-------1-------2           0---1---2---3---4 			0-------1		  0---1---2
 	*/
 
-	auto Nx = Elements[0].Nodes[2];
-	ModifiedNx = 2 * (Elements[0].Nodes[0] / Nx) * (2 * Nx - 1) + 2 * (Elements[0].Nodes[0] % Nx) + 2 * Nx - 1;
-	auto numberOfNewNodes = 2 * (Elements[Elements.size() - 2].Nodes[0] / Nx) * (2 * Nx - 1) + 2 * (Elements[Elements.size() - 2].Nodes[0] % Nx) + 2 * (2 * Nx - 1) + 2 + 1;
+	auto nX = Elements[0].Nodes[2];
+	ModifiedNx = 2 * (Elements[0].Nodes[0] / nX) * (2 * nX - 1) + 2 * (Elements[0].Nodes[0] % nX) + 2 * nX - 1;
+	auto numberOfNewNodes = 2 * (Elements[Elements.size() - 2].Nodes[0] / nX) * (2 * nX - 1) + 2 * (Elements[Elements.size() - 2].Nodes[0] % nX) + 2 * (2 * nX - 1) + 2 + 1;
 	std::vector<Point2D> newNodes(numberOfNewNodes, { 0.0, 0.0 });
 	std::vector<Element> newElements(Elements.size()); // TODO opt
 
 	for (uint32_t i = 0; i < Elements.size(); i++)
 	{
+		newElements[i].Nodes.resize(6);
+		newElements[i].Edges = Elements[i].Edges;
+		newElements[i].EdgeDirections = Elements[i].EdgeDirections;
 		auto elementNodes = Elements[i].Nodes;
 		if (!(i & 1))
 		{
-			auto Ki = 2 * (elementNodes[0] / Nx) * (2 * Nx - 1) + 2 * (elementNodes[0] % Nx);
+			auto Ki = 2 * (elementNodes[0] / nX) * (2 * nX - 1) + 2 * (elementNodes[0] % nX);
 			auto midBottom = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[0]].X) / 2.0,  Nodes[elementNodes[0]].Y };
 			auto midLeft = Point2D{ Nodes[elementNodes[0]].X, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 			auto center = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[0]].X) / 2.0, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 			newNodes[Ki] = Nodes[elementNodes[0]];
 			newNodes[Ki + 1] = midBottom;
 			newNodes[Ki + 2] = Nodes[elementNodes[1]];
-			newNodes[Ki + 2 * Nx - 1] = midLeft;
-			newNodes[Ki + 2 * Nx] = center;
-			newNodes[Ki + 2 * (2 * Nx - 1)] = Nodes[elementNodes[2]];
+			newNodes[Ki + 2 * nX - 1] = midLeft;
+			newNodes[Ki + 2 * nX] = center;
+			newNodes[Ki + 2 * (2 * nX - 1)] = Nodes[elementNodes[2]];
 			newElements[i].Nodes[0] = Ki;
 			newElements[i].Nodes[1] = Ki + 1;
 			newElements[i].Nodes[2] = Ki + 2;
-			newElements[i].Nodes[3] = Ki + 2 * Nx - 1;
-			newElements[i].Nodes[4] = Ki + 2 * Nx;
-			newElements[i].Nodes[5] = Ki + 2 * (2 * Nx - 1);
+			newElements[i].Nodes[3] = Ki + 2 * nX - 1;
+			newElements[i].Nodes[4] = Ki + 2 * nX;
+			newElements[i].Nodes[5] = Ki + 2 * (2 * nX - 1);
 
 		}
 		else
 		{
-			auto Ki = 2 * ((elementNodes[0] - 1) / Nx) * (2 * Nx - 1) + 2 * ((elementNodes[0] - 1) % Nx);
+			auto Ki = 2 * ((elementNodes[0] - 1) / nX) * (2 * nX - 1) + 2 * ((elementNodes[0] - 1) % nX);
 			auto midRight = Point2D{ Nodes[elementNodes[0]].X, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 			auto midTop = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[2]].X) / 2.0, Nodes[elementNodes[2]].Y };
-			newNodes[Ki + 2 * Nx + 1] = midRight;
-			newNodes[Ki + 2 * (2 * Nx - 1) + 1] = midTop;
-			newNodes[Ki + 2 * (2 * Nx - 1) + 2] = Nodes[elementNodes[2]];
+			newNodes[Ki + 2 * nX + 1] = midRight;
+			newNodes[Ki + 2 * (2 * nX - 1) + 1] = midTop;
+			newNodes[Ki + 2 * (2 * nX - 1) + 2] = Nodes[elementNodes[2]];
 			newElements[i].Nodes[0] = Ki + 2;
-			newElements[i].Nodes[1] = Ki + 2 * Nx;
-			newElements[i].Nodes[2] = Ki + 2 * Nx + 1;
-			newElements[i].Nodes[3] = Ki + 2 * (2 * Nx - 1);
-			newElements[i].Nodes[4] = Ki + 2 * (2 * Nx - 1) + 1;
-			newElements[i].Nodes[5] = Ki + 2 * (2 * Nx - 1) + 2;
+			newElements[i].Nodes[1] = Ki + 2 * nX;
+			newElements[i].Nodes[2] = Ki + 2 * nX + 1;
+			newElements[i].Nodes[3] = Ki + 2 * (2 * nX - 1);
+			newElements[i].Nodes[4] = Ki + 2 * (2 * nX - 1) + 1;
+			newElements[i].Nodes[5] = Ki + 2 * (2 * nX - 1) + 2;
 		}
 	}
 
@@ -175,33 +180,36 @@ void GridData::ModifyGrid()
 	0-------1-------2              0----1---2----3---4				  0-------1				 0---1---2
 	*/
 
-	auto Nx = Elements[0].Nodes[2];
-	ModifiedNx = 2 * (Elements[0].Nodes[0] / Nx) * (2 * Nx - 1) + 2 * (Elements[0].Nodes[0] % Nx) + 2 * Nx - 1;
-	auto numberOfNewNodes = 2 * (Elements[Elements.size() - 1].Nodes[0] / Nx) * (2 * Nx - 1) + 2 * (Elements[Elements.size() - 1].Nodes[0] % Nx) + 2 * (2 * Nx - 1) + 2 + 1;
+	auto nX = Elements[0].Nodes[2];
+	ModifiedNx = 2 * (Elements[0].Nodes[0] / nX) * (2 * nX - 1) + 2 * (Elements[0].Nodes[0] % nX) + 2 * nX - 1;
+	auto numberOfNewNodes = 2 * (Elements[Elements.size() - 1].Nodes[0] / nX) * (2 * nX - 1) + 2 * (Elements[Elements.size() - 1].Nodes[0] % nX) + 2 * (2 * nX - 1) + 2 + 1;
 	std::vector<Point2D> newNodes(numberOfNewNodes, { 0.0, 0.0 });
 	std::vector<Element> newElements(Elements.size());
 
 	for (uint32_t i = 0; i < Elements.size(); i++)
 	{
+		newElements[i].Nodes.resize(9);
+		newElements[i].Edges = Elements[i].Edges;
+		newElements[i].EdgeDirections = Elements[i].EdgeDirections;
 		auto elementNodes = Elements[i].Nodes;
 		auto midBottom = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[0]].X) / 2.0, Nodes[elementNodes[0]].Y };
 		auto midLeft = Point2D{ Nodes[elementNodes[0]].X, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 		auto center = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[0]].X) / 2.0, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 		auto midRight = Point2D{ Nodes[elementNodes[1]].X, (Nodes[elementNodes[2]].Y + Nodes[elementNodes[0]].Y) / 2.0 };
 		auto midTop = Point2D{ (Nodes[elementNodes[1]].X + Nodes[elementNodes[0]].X) / 2.0, Nodes[elementNodes[2]].Y };
-		auto Ki = 2 * (elementNodes[0] / Nx) * (2 * Nx - 1) + 2 * (elementNodes[0] % Nx);
+		auto Ki = 2 * (elementNodes[0] / nX) * (2 * nX - 1) + 2 * (elementNodes[0] % nX);
 		newNodes[Ki] = Nodes[elementNodes[0]];
 		newNodes[Ki + 1] = midBottom;
 		newNodes[Ki + 2] = Nodes[elementNodes[1]];
-		newNodes[Ki + 2 * Nx - 1] = midLeft;
-		newNodes[Ki + 2 * Nx] = center;
-		newNodes[Ki + 2 * Nx + 1] = midRight;
-		newNodes[Ki + 2 * (2 * Nx - 1)] = Nodes[elementNodes[2]];
-		newNodes[Ki + 2 * (2 * Nx - 1) + 1] = midTop;
-		newNodes[Ki + 2 * (2 * Nx - 1) + 2] = Nodes[elementNodes[3]];
+		newNodes[Ki + 2 * nX - 1] = midLeft;
+		newNodes[Ki + 2 * nX] = center;
+		newNodes[Ki + 2 * nX + 1] = midRight;
+		newNodes[Ki + 2 * (2 * nX - 1)] = Nodes[elementNodes[2]];
+		newNodes[Ki + 2 * (2 * nX - 1) + 1] = midTop;
+		newNodes[Ki + 2 * (2 * nX - 1) + 2] = Nodes[elementNodes[3]];
 		for (uint32_t j = 0; j < 9; j++)
 		{
-			std::array<uint32_t, 3> offsets = { Ki, Ki + 2 * Nx - 1, Ki + 2 * (2 * Nx - 1) };
+			std::array<uint32_t, 3> offsets = { Ki, Ki + 2 * nX - 1, Ki + 2 * (2 * nX - 1) };
 			auto index = j / 3;
 			newElements[i].Nodes[j] = offsets[index] + j % 3;
 		}
@@ -232,6 +240,47 @@ void GridData::Triangulate()
 	}
 
 	IndexingFunction = [&](uint32_t i, uint32_t j) { return LL[i & 1][j]; };
+}
+
+void GridData::SetupEdges()
+{
+	auto nX = Elements[0].Nodes[2];
+	if (Elements[0].Nodes.size() == 4)
+	{
+		for (auto elemNum = 0u; elemNum < Elements.size(); elemNum++)
+		{
+			auto& elem = Elements[elemNum];
+			elem.Edges.push_back(elemNum);
+			elem.Edges.push_back(elemNum + nX - 1);
+			elem.Edges.push_back(elemNum + nX);
+			elem.Edges.push_back(elemNum + 2 * nX - 1);
+			elem.EdgeDirections = { -1, -1, 1, 1 };
+		}
+	}
+	else if (Elements[0].Nodes.size() == 3)
+	{
+		for (auto elemNum = 0u; elemNum < Elements.size(); elemNum++)
+		{
+			auto& elem = Elements[elemNum];
+			if (!(elemNum & 1)) // |\ 
+			{
+				auto index = elemNum / (2 * nX - 2) * (4 * (nX - 1)) + elemNum % (2 * nX - 2) / 2;
+
+				elem.Edges.push_back(index);
+				elem.Edges.push_back(index + nX - 1);
+				elem.Edges.push_back(index + nX);
+				elem.EdgeDirections = { -1, -1, 1 };
+			}
+			else				// \|
+			{
+				auto index = (elemNum - 1) / (2 * nX - 2) * (4 * (nX - 1)) + (elemNum - 1) % (2 * nX - 2) / 2;
+				elem.Edges.push_back(index + nX);
+				elem.Edges.push_back(index + nX + 1);
+				elem.Edges.push_back((elemNum + 1) / (2 * nX - 2) * (4 * (nX - 1)) + (elemNum + 1) % (2 * nX - 2) / 2); // Все это лучше проверить
+				elem.EdgeDirections = { -1, 1, 1 };
+			}
+		}
+	}
 }
 
 void GridData::UpdateDirichlet(const std::vector<Point2D>& newNodes)

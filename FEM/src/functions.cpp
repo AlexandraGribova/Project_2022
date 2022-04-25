@@ -1,17 +1,6 @@
 #include "functions.h"
 #include "SparseMatrix.h"
 
-double dotProduct(const std::vector<double> a, const std::vector<double> b)
-{
-	double res = 0.0;
-	for (uint32_t i = 0; i < a.size(); i++)
-	{
-		res += a[i] * b[i];
-	}
-	return res;
-}
-
-
 std::pair<std::vector<uint32_t>, std::vector<uint32_t>> generatePortrait(uint32_t N, const std::vector<Element>& elements)
 {
 	uint32_t bigNumberWhichIDontKnowButMoreIThinkAboutItMoreItSeemsToBeLessThanNTimes8 = N * 8;

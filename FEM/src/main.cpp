@@ -15,9 +15,10 @@
 
 #include "FEMSolver.h"
 
-double testFunction(double x, double y) { return x; }
+double testFunction(double x, double y) { return x + y; }
 // Это её лапласиан P
 double rhsFunction(double x, double y) { return 0; }
+
 
 int main()
 {
@@ -27,11 +28,11 @@ int main()
 
 	GridData gridData;
 	gridData.BoundaryFunction = [&](double x, double y) { return testFunction(x, y); };
-	gridData.BoundaryFunction = [&](double x, double y) { return FemSolver.GetPlastPressure(); };
+	//gridData.BoundaryFunction = [&](double x, double y) { return FemSolver.GetPlastPressure(); };
 	gridData.RhsFunction = [](double x, double y) { return rhsFunction(x, y); };
 	gridData.LoadNodes("input/grid.txt");
 	gridData.LoadDirichletConditions("input/BC1.txt");
-	if (FemSolver.GetMode() == FEMMode::Linear || FemSolver.GetMode() == FEMMode::Quadratic)
+	if (FemSolver.GetMode() == BasisType::Linear || FemSolver.GetMode() == BasisType::Quadratic)
 	{
 		gridData.LoadElements("input/outTriangle.txt");
 		gridData.LoadNeumannConditions("input/BC2_Tri.txt");
@@ -41,21 +42,25 @@ int main()
 		gridData.LoadElements("input/out.txt");
 		gridData.LoadNeumannConditions("input/BC2.txt");
 	}
+	gridData.SetupEdges();
+
 
 	FemSolver.SetGridData(gridData);
-	FemSolver.LoadDomainData("input/mat.txt");
-	FemSolver.LoadViscosity("input/phaseprop.txt");
+	//FemSolver.LoadDomainData("input/mat.txt");
+	//FemSolver.LoadViscosity("input/phaseprop.txt");
 	FemSolver.CalculateStiffnesMatrix();
 	FemSolver.CalculateLoadVector();
 	FemSolver.ApplyNeumann();
 	FemSolver.ApplyDirichlet();
 	FemSolver.CalculateSolution();
-	auto solution = FemSolver.GetSolution();
-
+	auto& solution = FemSolver.GetSolution();
+	FemSolver.CalculateFlux();
+	auto& flux = FemSolver.GetFlux();
 
 	std::ofstream resout("output/result.txt");
 
 	// Если не указать 4 агрумент (известную функцию), то просто выведется ответ.
 	prettyPrint(resout, solution, FemSolver.GetGridData());
+	//prettyPrint(std::cout, solution, FemSolver.GetGridData());
 }
 

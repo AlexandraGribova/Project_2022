@@ -6,13 +6,9 @@
 #include "SparseMatrix.h"
 #include "ApproximationInfo.h"
 #include "MatrixAssembler.h"
+#include "FluxCalculator.h"
 
-enum class FEMMode 
-{
-	None = 0,
-	Bilinear, Biquadratic,
-	Linear, Quadratic
-};
+#include "Math.h"
 
 class FEMSolver
 {
@@ -44,9 +40,17 @@ public:
 	void ApplyNeumann();
 
 	void CalculateSolution();
+	
+	void CalculateFlux();
+
+	auto& GetFlux() const { return m_FluxCalculator.GetFlux(); }
 
 private:
-	FEMMode m_Mode;
+	void PerformGaussianReduction();
+	void ReduceRow(uint32_t row);
+
+private:
+	BasisType m_Mode;
 	std::unique_ptr<SparseMatrix> m_StiffnessMatrix;
 	std::vector<double> m_LoadVector;
 
@@ -55,6 +59,7 @@ private:
 	GridData m_GridData;
 
 	MatrixAssembler m_MatrixAssembler;
+	FluxCalculator m_FluxCalculator;
 
 	std::vector<double> m_Viscosity;
 	std::vector<std::pair<double, double>> m_Permeabilities;
@@ -62,9 +67,4 @@ private:
 
 	double m_Phi;
 	double m_Saturation;
-
-private:
-	void PerformGaussianReduction();
-	void ReduceRow(uint32_t row);
-
 };

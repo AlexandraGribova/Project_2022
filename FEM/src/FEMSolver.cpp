@@ -14,19 +14,19 @@ FEMSolver::FEMSolver(const std::string& path) :
 	LoadMode(path);
 	switch (m_Mode)
 	{
-	case FEMMode::None:
+	case BasisType::None:
 		break;
-	case FEMMode::Bilinear:
-		m_MatrixAssembler.SetApproximationInfo(ApprInfo::BilinearInfo);
+	case BasisType::Bilinear:
+		m_MatrixAssembler.SetApproximationInfo(ApprInfo::Bilinear);
 		break;
-	case FEMMode::Biquadratic:
-		m_MatrixAssembler.SetApproximationInfo(ApprInfo::BiquadraticInfo);
+	case BasisType::Biquadratic:
+		m_MatrixAssembler.SetApproximationInfo(ApprInfo::Biquadratic);
 		break;
-	case FEMMode::Linear:
-		m_MatrixAssembler.SetApproximationInfo(ApprInfo::LinearInfo);
+	case BasisType::Linear:
+		m_MatrixAssembler.SetApproximationInfo(ApprInfo::Linear);
 		break;
-	case FEMMode::Quadratic:
-		m_MatrixAssembler.SetApproximationInfo(ApprInfo::QuadraticInfo);
+	case BasisType::Quadratic:
+		m_MatrixAssembler.SetApproximationInfo(ApprInfo::Quadratic);
 		break;
 	default:
 		break;
@@ -36,14 +36,14 @@ FEMSolver::FEMSolver(const std::string& path) :
 void FEMSolver::SetGridData(GridData& gridData)
 {
 	
-	if (m_Mode == FEMMode::Biquadratic)
+	if (m_Mode == BasisType::Biquadratic)
 		gridData.ModifyGrid();
-	if (m_Mode == FEMMode::Quadratic)
+	if (m_Mode == BasisType::Quadratic)
 		gridData.ModifyTriangleGrid();
 
-	if (m_Mode == FEMMode::Linear || m_Mode == FEMMode::Quadratic)
+	if (m_Mode == BasisType::Linear || m_Mode == BasisType::Quadratic)
 		gridData.Triangulate();
-	m_GridData = std::move(gridData);
+	m_GridData = gridData;
 }
 
 void FEMSolver::LoadViscosity(const std::string& path)
@@ -97,13 +97,15 @@ void FEMSolver::LoadMode(const std::string& path)
 	std::string mode;
 	in >> mode;
 	if (mode == "BL")
-		m_Mode = FEMMode::Bilinear;
+		m_Mode = BasisType::Bilinear;
 	else if (mode == "BQ")
-		m_Mode = FEMMode::Biquadratic;
+		m_Mode = BasisType::Biquadratic;
 	else if (mode == "L")
-		m_Mode = FEMMode::Linear;
+		m_Mode = BasisType::Linear;
 	else if (mode == "Q")
-		m_Mode = FEMMode::Quadratic;
+		m_Mode = BasisType::Quadratic;
+
+	m_FluxCalculator.SetMode(m_Mode);
 }
 
 void FEMSolver::LoadPlastPressure(const std::string& path)
@@ -205,6 +207,10 @@ void FEMSolver::CalculateSolution()
 	}
 }
 
+void FEMSolver::CalculateFlux()
+{
+	m_FluxCalculator.CalculateFlux(m_MatrixAssembler.GetApproximationInfo().GetBasisInfo(), m_GridData, m_Solution);
+}
 
 void FEMSolver::PerformGaussianReduction()
 {
@@ -249,3 +255,4 @@ void FEMSolver::ReduceRow(uint32_t row)
 		}
 	}
 }
+

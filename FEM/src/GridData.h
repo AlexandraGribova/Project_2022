@@ -16,6 +16,7 @@ public:
 	void ModifyTriangleGrid();
 	void ModifyGrid();
 	void Triangulate();
+	void SetupEdges();
 
 	std::vector<Element> Elements;
 	std::vector<NodeIDs> LL;

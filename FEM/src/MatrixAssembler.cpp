@@ -1,4 +1,5 @@
 #include "MatrixAssembler.h"
+#include "Math.h"
 #include <iostream>
 
 std::unique_ptr<SparseMatrix> MatrixAssembler::AssembleMatrix(const GridData& gridData, std::vector<uint32_t>& ig, std::vector<uint32_t>& jg, Fn2d additionalCoeffs)

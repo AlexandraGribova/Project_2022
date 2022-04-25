@@ -3,7 +3,6 @@
 #include "DataStructures.h"
 #include "SparseMatrix.h"
 
-double dotProduct(const std::vector<double> a, const std::vector<double> b);
 std::pair<std::vector<uint32_t>, std::vector<uint32_t>> generatePortrait(uint32_t N, const std::vector<Element>& elements);
 
 inline double getWidth(const std::vector<Point2D>& nodes, const std::vector<uint32_t>& element) 
