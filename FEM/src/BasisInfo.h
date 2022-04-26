@@ -70,11 +70,11 @@ namespace BsInfo
 			auto l3 = [&](double x, double y) { return y; };
 
 			auto xi1 = [&](double x, double y) { auto val = l1(x, y); return val * (2.0 * val - 1.0); };
-			auto xi2 = [&](double x, double y) { auto val = l2(x, y); return val * (2.0 * val - 1.0);  };
-			auto xi3 = [&](double x, double y) { auto val = l3(x, y); return val * (2.0 * val - 1.0);  };
-			auto xi4 = [&](double x, double y) { return 4.0 * l1(x, y) * l2(x, y); };
+			auto xi2 = [&](double x, double y) { auto val = l3(x, y); return val * (2.0 * val - 1.0);  };
+			auto xi3 = [&](double x, double y) { auto val = l2(x, y); return val * (2.0 * val - 1.0);  };
+			auto xi4 = [&](double x, double y) { return 4.0 * l1(x, y) * l3(x, y); };
 			auto xi5 = [&](double x, double y) { return 4.0 * l2(x, y) * l3(x, y); };
-			auto xi6 = [&](double x, double y) { return 4.0 * l1(x, y) * l3(x, y); };
+			auto xi6 = [&](double x, double y) { return 4.0 * l1(x, y) * l2(x, y); };
 
 			return { xi1, xi2, xi3, xi4, xi5, xi6 };
 		}()

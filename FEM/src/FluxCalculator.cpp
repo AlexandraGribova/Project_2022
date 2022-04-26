@@ -65,7 +65,7 @@ std::vector<std::vector<Vec2D>> FluxCalculator::GetPrecalculatedGradXiIntegral(c
 	auto precalculatedGradXiValues = GetPrecalculatedGradXiValues(basisInfo, origins, directions);
 	for (auto xiNum = 0u; xiNum < precalculatedGradXiValues.size(); xiNum++)
 	{
-		for (auto edgeNum = 0u; edgeNum <  precalculatedGradXiValues[xiNum].size(); edgeNum++)
+		for (auto edgeNum = 0u; edgeNum < precalculatedGradXiValues[xiNum].size(); edgeNum++)
 		{
 			auto edge = precalculatedGradXiValues[xiNum][edgeNum];
 			auto gradIntegral = Vec2D{ 0.0, 0.0 };
@@ -82,7 +82,7 @@ std::vector<std::vector<Vec2D>> FluxCalculator::GetPrecalculatedGradXiIntegral(c
 std::vector<std::vector<std::vector<Vec2D>>> FluxCalculator::GetPrecalculatedGradXiValues(const BasisInfo& basisInfo, const auto& origins, const auto& directions)
 {
 	static auto integrationPoints = std::vector<double>{ 0.0, 0.5, 1.0 };
-	
+
 	auto precalculatedGradXiValues = std::vector<std::vector<std::vector<Vec2D>>>(basisInfo.GetBasisFunctions().size());
 	std::for_each(precalculatedGradXiValues.begin(), precalculatedGradXiValues.end(), [&](auto& val) {val.resize(origins.size()); });
 
@@ -116,12 +116,12 @@ std::vector<std::vector<Vec2D>> FluxCalculator::GetNormals()
 		break;
 	case BasisType::Bilinear:
 	case BasisType::Biquadratic:
-		normals = { 
+		normals = {
 			{
 				{0.0, 1.0},
 				{1.0, 0.0},
 				{1.0, 0.0},
-				{0.0, 1.0} 
+				{0.0, 1.0}
 			},
 			{
 				{0.0, 1.0},
