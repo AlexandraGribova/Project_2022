@@ -48,7 +48,7 @@ void FluxCalculator::CalculateFlux(const BasisInfo& basisInfo, const GridData& g
 				gradIntegral.Y = precalculatedIntegrals[elemDisparity][indF(elemNum, xiNum)][edgeNum].Y * JInv[1] * jacobiMod[elemDisparity];
 				edgeFlux += solution[elem.Nodes[xiNum]] * (gradIntegral.X * normal.X + gradIntegral.Y * normal.Y);
 			}
-			edgeFlux *= elem.EdgeDirections[edgeNum] * J / 6.0;
+			edgeFlux *= J / 6.0;
 			// Наверное это не лучший способ.
 			m_Fluxes[elem.Edges[edgeNum]] = m_Fluxes[elem.Edges[edgeNum]] == 0.0 ? edgeFlux : (edgeFlux + m_Fluxes[elem.Edges[edgeNum]]) / 2.0;
 		}
