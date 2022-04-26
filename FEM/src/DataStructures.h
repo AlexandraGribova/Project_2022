@@ -32,6 +32,9 @@ struct Vec2D
 	Vec2D& operator*=(double val) { X *= val, Y *= val; return *this; }
 	Vec2D& operator/=(double val) { return *this *= (1.0 / val); }
 
+	double LengthSquared() const { return X * X + Y * Y; }
+	double Length() const { return std::sqrt(LengthSquared()); }
+
 	double X, Y;
 };
 

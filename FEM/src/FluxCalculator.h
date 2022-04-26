@@ -7,11 +7,13 @@
 class FluxCalculator
 {
 public:
-	FluxCalculator() = default;
+	FluxCalculator();
 	
+	void Init();
+
 	void CalculateFlux(const BasisInfo& basisInfo, const GridData& grid, const std::vector<double>& solution);
 
-	void SetMode(BasisType mode) { m_Mode = mode; }
+	void SetMode(BasisType mode) { m_Mode = mode; Init(); }
 
 	auto& GetFlux() const { return m_Fluxes; }
 
@@ -32,6 +34,8 @@ private:
 
 private:
 	std::vector<double> m_Fluxes;
+
+	std::function<void(Vec2D&, const std::vector<double>&)> m_NormalModifier;
 
 	BasisType m_Mode;
 };

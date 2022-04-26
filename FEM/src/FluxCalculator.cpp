@@ -4,9 +4,45 @@
 #include "functions.h"
 #include "Math.h"
 
+FluxCalculator::FluxCalculator() : m_Mode(BasisType::None)
+{ }
+
+void FluxCalculator::Init()
+{
+	// По формулам линейной алгебры, для того, чтобы нормаль грани после линейного преобразования J осталась ей перпендикулярна, 
+	// к ней (нормали) необходимо применить преобразование (J^T)^(-1) в нашем случае J^(-1)
+	// Очевидно, имеет смысл только для наклонных граней
+	switch (m_Mode)
+	{
+	case BasisType::None:
+		break;
+	case BasisType::Bilinear:
+	case BasisType::Biquadratic:
+		m_NormalModifier = [](auto& normal, const auto& jInv) { return; };
+		break;
+
+	case BasisType::Linear:
+	case BasisType::Quadratic:
+		m_NormalModifier = [](auto& normal, const auto& jInv) {
+			if (normal.X && normal.Y)
+			{
+				normal.X *= jInv[0];
+				normal.Y *= jInv[1];
+				normal /= normal.Length();
+			}
+			return;
+		};
+		break;
+	default:
+		break;
+	}
+}
+
 void FluxCalculator::CalculateFlux(const BasisInfo& basisInfo, const GridData& grid, const std::vector<double>& solution)
 {
 	m_Fluxes = std::vector<double>(grid.Elements.back().Edges.back() + 1, 0.0);
+
+	std::function<void(Vec2D&, const std::vector<double>&)> normalModifier;
 
 	// Здесь и далее нормали и т.д. хранятся для четных и нечетных элементов.
 	// Для прямоугольников они совпадают, но мне кажется что это лучше, чем 
@@ -38,7 +74,9 @@ void FluxCalculator::CalculateFlux(const BasisInfo& basisInfo, const GridData& g
 		{
 			// J - длина ребра
 			auto J = GetEdgeLength(elem, elemNum, edgeNum, width, height);
-			auto& normal = normals[elemDisparity][edgeNum];
+			auto normal = normals[elemDisparity][edgeNum];
+			m_NormalModifier(normal, JInv);
+
 			auto edgeFlux = 0.0;
 			// xi - это типо кси
 			for (auto xiNum = 0; xiNum < basisInfo.GetBasisFunctions().size(); xiNum++)
