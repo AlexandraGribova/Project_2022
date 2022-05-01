@@ -18,6 +18,11 @@ public:
 	void Triangulate();
 	void SetupEdges();
 
+
+	void ig_jg_generation();
+	int ig_creation(int elem1, int elem2, int edge, std::vector<int> &jg);
+	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
+
 	std::vector<Element> Elements;
 	std::vector<NodeIDs> LL;
 	std::vector<Point2D> Nodes;

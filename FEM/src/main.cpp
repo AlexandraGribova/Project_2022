@@ -43,7 +43,7 @@ int main()
 		gridData.LoadNeumannConditions("input/BC2.txt");
 	}
 	gridData.SetupEdges();
-
+	gridData.ig_jg_generation();//
 
 	FemSolver.SetGridData(gridData);
 	//FemSolver.LoadDomainData("input/mat.txt");
