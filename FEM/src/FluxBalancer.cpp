@@ -66,7 +66,8 @@ void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
 {	
 	int ig_elem;
 	int i;
-	int finit_elem1, finit_elem2;
+	vector<int32_t> finit_elem;
+	finit_elem.resize(2);
 	auto nX = Elements[0].Nodes[2];//число узлов на нижней стороне области
 	for (i = 0; i < nX; i++)//число 1 в массиве ig совпадает с числом узлов на нижней стороне области
 		ig.push_back(1);
@@ -74,9 +75,8 @@ void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
 	for (i-=1; i < quantity; i++)//генерация вектора ig и jg
 	{
-		finit_elem1= GetNumberEdge(i)[0];//вернут два элемента для которых рань смежная
-		finit_elem2 = GetNumberEdge(i)[1];
-		ig_elem = ig[i] + ig_creation(finit_elem1, finit_elem2, i, jg);
+		finit_elem = GetNumberEdge(i);//вернут два элемента для которых грань смежная
+		ig_elem = ig[i] + ig_creation(finit_elem[0], finit_elem[1], i, jg);
 		ig.push_back(ig_elem);
 	}
 }
