@@ -1,4 +1,5 @@
 #include "FluxBalancer.h"
+#include "FEMSolver.h"
 #include "FluxCalculator.h"
 #include "GridData.h"
 #include <algorithm>
@@ -61,10 +62,8 @@ int GridData::ig_creation(int elem1, int elem2, int edge, vector<int> &jg)//на в
 		}
 	return number;
 }
-void GridData::ig_jg_generation()
-{
-	vector<int> ig;
-	vector<int> jg;
+void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
+{	
 	int ig_elem;
 	int i;
 	int finit_elem1, finit_elem2;
@@ -80,5 +79,14 @@ void GridData::ig_jg_generation()
 		ig_elem = ig[i] + ig_creation(finit_elem1, finit_elem2, i, jg);
 		ig.push_back(ig_elem);
 	}
+}
 
+void GridData::flux_balancer(vector<double> flux)
+{
+	vector<int> ig;
+	vector<int> jg;
+	vector<double> betta;
+	uint32_t n = Elements.size();
+	betta.resize(n);
+	ig_jg_generation(ig, jg);
 }

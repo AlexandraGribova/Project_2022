@@ -43,7 +43,6 @@ int main()
 		gridData.LoadNeumannConditions("input/BC2.txt");
 	}
 	gridData.SetupEdges();
-	gridData.ig_jg_generation();//
 
 	FemSolver.SetGridData(gridData);
 	//FemSolver.LoadDomainData("input/mat.txt");
@@ -55,7 +54,9 @@ int main()
 	FemSolver.CalculateSolution();
 	auto& solution = FemSolver.GetSolution();
 	FemSolver.CalculateFlux();
-	auto& flux = FemSolver.GetFlux();
+	std::vector<double> flux = FemSolver.GetFlux();
+
+	gridData.flux_balancer(flux);///
 
 	std::ofstream resout("output/result.txt");
 

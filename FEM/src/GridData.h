@@ -19,7 +19,8 @@ public:
 	void SetupEdges();
 
 
-	void ig_jg_generation();
+	void flux_balancer(std::vector<double> flux);
+	void ig_jg_generation(std::vector<int>& ig, std::vector<int>& jg);
 	int ig_creation(int elem1, int elem2, int edge, std::vector<int> &jg);
 	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
 
