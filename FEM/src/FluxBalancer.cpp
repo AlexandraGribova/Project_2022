@@ -12,6 +12,19 @@
 #include <iostream>
 using namespace std;
 
+vector<int32_t> GridData::get_Sg(int elem, vector<double> flux)
+{
+	vector<int32_t> Sg;
+	double flux_edge;
+	for (int i = 0; i < 4; i++)
+	{		
+		flux_edge = flux[Elements[elem].Edges[i]];//поток на грани i элемента elem
+		if (flux_edge < 0) Sg.push_back( (-1) * Elements[elem].EdgeDirections[i]);
+		if (flux_edge > 0) Sg.push_back(Elements[elem].EdgeDirections[i]);
+		if (flux_edge==0) Sg.push_back(0);
+	}
+	return Sg;
+}
 
 vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
 {
@@ -89,4 +102,5 @@ void GridData::flux_balancer(vector<double> flux)
 	uint32_t n = Elements.size();
 	betta.resize(n);
 	ig_jg_generation(ig, jg);
+	get_Sg(1, flux);
 }
