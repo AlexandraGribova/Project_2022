@@ -24,8 +24,9 @@ public:
 	int ig_creation(int elem1, int elem2, int edge, std::vector<int> &jg);
 	std::vector<int32_t> get_Sg(int elem, std::vector<double> flux);
 
-	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
 
+	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
+	std::vector<int32_t> vectorD(std::vector<double> flux, std::vector<double> betta);
 	std::vector<Element> Elements;
 	std::vector<NodeIDs> LL;
 	std::vector<Point2D> Nodes;

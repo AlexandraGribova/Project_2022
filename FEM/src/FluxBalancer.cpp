@@ -26,11 +26,40 @@ vector<int32_t> GridData::get_Sg(int elem, vector<double> flux)
 	return Sg;
 }
 
+vector<int32_t> GridData::vectorD(vector<double> flux, vector<double> betta)
+{
+	
+	uint32_t n = Elements.size();
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
+
+	vector<int32_t> d(quantity, 0);
+	vector<int32_t> finit_elem(2,0);
+	vector<int32_t> edgeSg(4, 0);
+
+	for (uint32_t i = 0; i < quantity; i++) // цикл по всем граням
+	{
+		finit_elem = GetNumberEdge(i);// два элемента для которых грань смежная
+		for (uint32_t j = 0; j < 2; j++)// пройтись по этим двум элементам
+		{
+			if (finit_elem[j] != -1)
+			{
+				edgeSg = get_Sg(j, flux);
+				d[i] += betta[j] * (edgeSg[0]*flux[Elements[j].Edges[0]]+edgeSg[1] * flux[Elements[j].Edges[1]] +edgeSg[2] * flux[Elements[j].Edges[2]] +edgeSg[3] * flux[Elements[j].Edges[3]]);
+			}
+		}
+
+	}
+
+	return d;
+}
+
 vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
 {
 	uint32_t n = Elements.size();
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
 	vector<vector<int32_t> > edge(quantity, vector<int32_t>(2, -1));
+
+
 
 	bool flag = true;
 	uint32_t sum = 0;
@@ -96,11 +125,18 @@ void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
 
 void GridData::flux_balancer(vector<double> flux)
 {
+	uint32_t n = Elements.size();//количество элементов
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
+
+	vector<int32_t> d(quantity, 0);
+	vector<double> betta(n, 1.0);
 	vector<int> ig;
 	vector<int> jg;
-	vector<double> betta;
-	uint32_t n = Elements.size();
+	
+	
 	betta.resize(n);
 	ig_jg_generation(ig, jg);
 	get_Sg(1, flux);
+	d = vectorD(flux, betta);
+
 }
