@@ -44,7 +44,7 @@ vector<int32_t> GridData::vectorD(vector<double> flux, vector<double> betta)
 			if (finit_elem[j] != -1)
 			{
 				edgeSg = get_Sg(j, flux);
-				d[i] += betta[j] * (edgeSg[0]*flux[Elements[j].Edges[0]]+edgeSg[1] * flux[Elements[j].Edges[1]] +edgeSg[2] * flux[Elements[j].Edges[2]] +edgeSg[3] * flux[Elements[j].Edges[3]]);
+				d[i] += betta[j] * (edgeSg[0]*flux[Elements[finit_elem[j]].Edges[0]]+edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] +edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] +edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
 			}
 		}
 

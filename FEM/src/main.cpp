@@ -15,9 +15,9 @@
 
 #include "FEMSolver.h"
 
-double testFunction(double x, double y) { return x; }
+double testFunction(double x, double y) { return x*x; }
 // Это её лапласиан P
-double rhsFunction(double x, double y) { return 0; }
+double rhsFunction(double x, double y) { return 2; }
 
 
 int main()
