@@ -42,9 +42,6 @@
     <ClCompile Include="src\FluxBalancer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\LOS_solver.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\Solver.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>

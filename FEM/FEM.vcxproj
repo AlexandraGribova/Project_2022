@@ -25,7 +25,6 @@
     <ClCompile Include="src\FEMSolver.cpp" />
     <ClCompile Include="src\functions.cpp" />
     <ClCompile Include="src\GridData.cpp" />
-    <ClCompile Include="src\LOS_solver.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MatrixAssembler.cpp" />
     <ClCompile Include="src\Solver.cpp" />
