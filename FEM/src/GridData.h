@@ -28,7 +28,7 @@ public:
 	int get_number(int elem, int edge);
 
 	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
-	std::vector<int32_t> vectorD(std::vector<double> flux, std::vector<double> betta);
+	std::vector<double> vectorD(std::vector<double> flux, std::vector<double> betta);
 	std::vector<Element> Elements;
 	std::vector<NodeIDs> LL;
 	std::vector<Point2D> Nodes;

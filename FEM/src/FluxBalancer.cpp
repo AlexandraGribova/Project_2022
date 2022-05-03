@@ -2,7 +2,7 @@
 #include "FEMSolver.h"
 #include "FluxCalculator.h"
 #include "GridData.h"
-#include "LOS_solver.cpp"
+#include "Solver.cpp"
 #include <algorithm>
 #include<vector>
 #include "Math.h"
@@ -35,13 +35,13 @@ int GridData::get_number(int elem, int edge)
 	return -1;
 }
 
-vector<int32_t> GridData::vectorD(vector<double> flux, vector<double> betta)
+vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 {
 	
 	uint32_t n = Elements.size();
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
 
-	vector<int32_t> d(quantity, 0);
+	vector<double> d(quantity, 0);
 	vector<int32_t> finit_elem(2,0);
 	vector<int32_t> edgeSg(4, 0);
 
@@ -174,7 +174,7 @@ void GridData::flux_balancer(vector<double> flux)
 	uint32_t n = Elements.size();//количество элементов
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
 
-	vector<int32_t> d(quantity, 0);
+	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
 	vector<int> ig;
 	vector<int> jg;
@@ -182,5 +182,5 @@ void GridData::flux_balancer(vector<double> flux)
 	ig_jg_generation(ig, jg);
 	d = vectorD(flux, betta);
 	b_matrix_init(gg, betta, flux);
-	LOS_solver los(ig, jg, gg, diag, quantity);
+	LOS_ los(ig, jg, gg, diag, d, quantity);
 }
