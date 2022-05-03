@@ -42,6 +42,9 @@
     <ClCompile Include="src\FluxBalancer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\LOS_solver.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ApproximationInfo.h">

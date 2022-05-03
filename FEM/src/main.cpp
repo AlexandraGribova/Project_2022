@@ -12,7 +12,6 @@
 #include "functions.h"
 #include "SparseMatrix.h"
 #include "GridData.h"
-
 #include "FEMSolver.h"
 
 double testFunction(double x, double y) { return x*x; }

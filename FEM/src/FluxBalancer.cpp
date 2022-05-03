@@ -2,6 +2,7 @@
 #include "FEMSolver.h"
 #include "FluxCalculator.h"
 #include "GridData.h"
+#include "LOS_solver.cpp"
 #include <algorithm>
 #include<vector>
 #include "Math.h"
@@ -177,8 +178,9 @@ void GridData::flux_balancer(vector<double> flux)
 	vector<double> betta(n, 1.0);
 	vector<int> ig;
 	vector<int> jg;
-	vector<double> gg;
+	vector<double> gg, diag(quantity, 2);
 	ig_jg_generation(ig, jg);
 	d = vectorD(flux, betta);
 	b_matrix_init(gg, betta, flux);
+	LOS_solver los(ig, jg, gg, diag, quantity);
 }
