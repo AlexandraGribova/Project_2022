@@ -25,6 +25,14 @@ vector<int32_t> GridData::get_Sg(int elem, vector<double> flux)
 	}
 	return Sg;
 }
+int GridData::get_number(int elem, int edge) 
+{
+	int number;
+	for (number = 0; number < 4; number++)
+		if (Elements[elem].Edges[number] == edge) return number;
+
+	return -1;
+}
 
 vector<int32_t> GridData::vectorD(vector<double> flux, vector<double> betta)
 {
@@ -123,6 +131,43 @@ void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
 	}
 }
 
+int GridData::find_elem(int edge, int elem1, int elem2)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (Elements[elem1].Edges[i] == edge) return elem1;
+		if (elem2!=-1 && Elements[elem2].Edges[i] == edge) return elem2;
+	}
+	return -1;
+}
+
+
+void GridData::b_matrix_init(std::vector<double> &gg, std::vector<double> betta, std::vector<double> flux)
+{
+	uint32_t n = Elements.size();
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
+	vector<int> elements(2,0);
+	double b_elem;
+	int this_elem;
+	for (int j = 0; j < quantity; j++)
+	{
+		elements = GetNumberEdge(j);
+		vector<uint32_t> vec;
+		int number = 0;
+		vector<int32_t> Sg(0,4);
+		vec = Elements[elements[0]].Edges;
+		if (elements[1] != -1) vec.insert(vec.end(), Elements[elements[1]].Edges.begin(), Elements[elements[1]].Edges.end());
+		sort(vec.begin(), vec.end());
+		for (int i = 0; i < vec.size(); i++)
+			if (vec[i] < j)
+			{				
+				this_elem = find_elem(vec[i], elements[0], elements[1]);
+				Sg = get_Sg(this_elem, flux);
+				b_elem = betta[this_elem] * Sg[get_number(this_elem, j)] * Sg[get_number(this_elem, vec[i])];
+				gg.push_back(b_elem);
+			}
+	}
+}
 void GridData::flux_balancer(vector<double> flux)
 {
 	uint32_t n = Elements.size();//количество элементов
@@ -132,11 +177,8 @@ void GridData::flux_balancer(vector<double> flux)
 	vector<double> betta(n, 1.0);
 	vector<int> ig;
 	vector<int> jg;
-	
-	
-	betta.resize(n);
+	vector<double> gg;
 	ig_jg_generation(ig, jg);
-	get_Sg(1, flux);
 	d = vectorD(flux, betta);
-
+	b_matrix_init(gg, betta, flux);
 }

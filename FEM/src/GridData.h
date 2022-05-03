@@ -23,7 +23,9 @@ public:
 	void ig_jg_generation(std::vector<int>& ig, std::vector<int>& jg);
 	int ig_creation(int elem1, int elem2, int edge, std::vector<int> &jg);
 	std::vector<int32_t> get_Sg(int elem, std::vector<double> flux);
-
+	void b_matrix_init(std::vector<double> &gg, std::vector<double> betta, std::vector<double> flux);
+	int find_elem(int edge, int elem1, int elem2);
+	int get_number(int elem, int edge);
 
 	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
 	std::vector<int32_t> vectorD(std::vector<double> flux, std::vector<double> betta);
