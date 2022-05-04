@@ -186,5 +186,6 @@ void GridData::flux_balancer(vector<double> flux)
 		d = vectorD(flux, betta);
 		b_matrix_init(gg, betta, flux);
 		LOS_ los(ig, jg, gg, diag, d, quantity);
+		q = los.get_q();
 	}
 }
