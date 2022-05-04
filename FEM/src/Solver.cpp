@@ -109,7 +109,7 @@ private:
 		return k;
 	}
 public:
-	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N)
+	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N, vector<double> &output)
 	{
 		n = _N;
 		int* ia = &_ig[0];
@@ -121,6 +121,8 @@ public:
 		double* b = &_d[0];
 		int m = _ig[_ig.size()- 1] - 1;
 		MSG(ia, ja, n, al, di, x0, b, maxiter, eps);
+		vector<double> out(x0, x0 + sizeof x0 / sizeof x0[0]);
+		output = out;
 	}
 
 };

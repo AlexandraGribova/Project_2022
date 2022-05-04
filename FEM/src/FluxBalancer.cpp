@@ -173,14 +173,22 @@ void GridData::flux_balancer(vector<double> flux)
 {
 	uint32_t n = Elements.size();//количество элементов
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
-
+	double eps_balance = 1e-6;
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
+	vector<double> q;
 	vector<int> ig;
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
 	ig_jg_generation(ig, jg);
-	d = vectorD(flux, betta);
-	b_matrix_init(gg, betta, flux);
-	LOS_ los(ig, jg, gg, diag, d, quantity);
+	while()
+	{
+		d = vectorD(flux, betta);
+		b_matrix_init(gg, betta, flux);
+		LOS_ los(ig, jg, gg, diag, d, quantity, q);
+		for (int i=0; i<n; i++)
+		{
+
+		}
+	}
 }
