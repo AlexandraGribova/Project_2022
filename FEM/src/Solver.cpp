@@ -7,9 +7,13 @@ private:
 	/*vector<double> X, di, al;
 	vector < int32_t> b;
 	vector<int> ia, ja;*/
+
+	vector<double> x0;
 	int n, m;
 	int maxiter = 1000;
 	double nev = 0, eps = 1e-6;
+
+
 
 	double DotProduct(vector<double> x, vector<double> y, int n)
 	{
@@ -111,21 +115,15 @@ private:
 		return k;
 	}*/
 public:
-	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N, vector<double> &output)
+	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t n)
 	{
-		n = _N;
-		int* ia = &_ig[0];
-		int* ja = &_jg[0];
-		double* di = &_diag[0];
-		double* al = &_gg[0];
-		double* x = new double[n];
-		//double* x0 = new double[n] {1};
-		vector<double> x0(n, 1);
-		double* b = &_d[0];
-		int m = _ig[_ig.size()- 1] - 1;
+		x0.resize(n, 1);
 		MSG(_ig, _jg, n, _gg, _diag, x0, _d, maxiter, eps);
-		//vector<double> out(x0, x0 + sizeof x0 / sizeof x0[0]);
-		//output = out;
+	}
+
+	vector<double> get_q()
+	{
+		return x0;
 	}
 
 };

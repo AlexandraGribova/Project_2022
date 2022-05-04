@@ -35,12 +35,12 @@ int GridData::get_number(int elem, int edge)
 
 	return -1;
 }
-int GridData::GetMaxFluxElement(int elem)
+int GridData::GetMaxFluxElement(int elem, vector<double> flux)
 {
 	int number;
-	int out =0;
+	int out = 0;
 	for (number = 0; number < 4; number++)
-		if (Elements[elem].Edges[out] < Elements[elem].Edges[number])
+		if (flux[Elements[elem].Edges[out]] < flux[Elements[elem].Edges[number]])
 		{
 			out = number ;
 		}
@@ -181,7 +181,7 @@ void GridData::flux_balancer(vector<double> flux)
 {
 	uint32_t n = Elements.size();//количество элементов
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //количество граней
-	double eps_balance = 1e-6;
+	double eps_balance = 1e-1;
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
 	vector<double> q;
@@ -193,31 +193,47 @@ void GridData::flux_balancer(vector<double> flux)
 	int k = 1;
 	vector<int32_t> edgeSg(4, 0);
 	
-	
-	d = vectorD(flux, betta);
-	b_matrix_init(gg, betta, flux);
-	LOS_ los(ig, jg, gg, diag, d, quantity, q);
-	
-	
-	/*while (k != 0)
+	while (k <100)
 	{
-		k = 0;
+	    //k = 0;
 		d = vectorD(flux, betta);
 		b_matrix_init(gg, betta, flux);
-		LOS_ los(ig, jg, gg, diag, d, quantity, q);
-		for (int i=0; i<n; i++)
+		LOS_ los(ig, jg, gg, diag, d, quantity);
+		k++;
+		q = los.get_q();
+		for (int i = 0; i < n; i++)
 		{
-			for (int j = 0; j < 4; j++)
-			{
+			
 				edgeSg = get_Sg(i, flux);
-				int numberMax = GetMaxFluxElement(i);
-				sum = (edgeSg[0] * abs(flux[Elements[i].Edges[0]]) + edgeSg[1] * abs(flux[Elements[i].Edges[1]]) + edgeSg[2] * abs(flux[Elements[i].Edges[2]]) + edgeSg[3] * abs(flux[Elements[i].Edges[3]]))/(flux[Elements[i].Edges[numberMax]]);
+				int numberMax = GetMaxFluxElement(i,flux);
+				for (int k = 0; k < 4; k++) // 0 2 3 5 -- 0 6 10 0 -- 0 -1 1 0 -- 2 8 12 3
+				{
+					sum += edgeSg[k] * abs(flux[Elements[i].Edges[k]]) + q[Elements[i].Edges[k]];
+				}
+				sum /= flux[Elements[i].Edges[numberMax]];
+				
+				//sum = ((edgeSg[0] * abs(flux[Elements[i].Edges[0]]) + q[Elements[i].Edges[0]]) + (edgeSg[1] * abs(flux[Elements[i].Edges[1]]) + q[Elements[i].Edges[1]]) + (edgeSg[2] * abs(flux[Elements[i].Edges[2]])+q[Elements[i].Edges[2]]) + (edgeSg[3] * abs(flux[Elements[i].Edges[3]]))/(flux[Elements[i].Edges[numberMax]]+q[Elements[i].Edges[3]]));
+				
 				if (sum > eps_balance)
 				{
 					betta[i] /= 2;
-					k++;
+					//k++;
 				}
-			}
+			
 		}
-	}*/
+	}
+
+
+	vector<double> fflux(quantity, 0);
+	for (int j = 0; j < n; j++)
+	{
+		edgeSg = get_Sg(j, flux);
+		
+		for (int k = 0; k < 4; k++) // 0 2 3 5 -- 0 6 10 0 -- 0 -1 1 0 -- 2 8 12 3
+		{
+			fflux[Elements[j].Edges[k]] += edgeSg[k] * abs(flux[Elements[j].Edges[k]]) + q[Elements[j].Edges[k]];
+		}
+	}
+
+
 }
