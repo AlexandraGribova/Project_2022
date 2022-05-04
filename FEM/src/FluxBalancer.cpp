@@ -181,14 +181,10 @@ void GridData::flux_balancer(vector<double> flux)
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
 	ig_jg_generation(ig, jg);
-	while()
+	while(1)
 	{
 		d = vectorD(flux, betta);
 		b_matrix_init(gg, betta, flux);
-		LOS_ los(ig, jg, gg, diag, d, quantity, q);
-		for (int i=0; i<n; i++)
-		{
-
-		}
+		LOS_ los(ig, jg, gg, diag, d, quantity);
 	}
 }

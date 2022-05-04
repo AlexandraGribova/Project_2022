@@ -1,5 +1,6 @@
 #include<vector>
 #include<iostream>
+#include <iterator>
 using namespace std;
 class LOS_
 {
@@ -10,6 +11,7 @@ private:
 	int n, m;
 	int maxiter = 1000;
 	double nev = 0, eps = 1e-6;
+	double* x0 = new double[n] {1};
 
 	double DotProduct(double* x, double* y, int n)
 	{
@@ -109,7 +111,7 @@ private:
 		return k;
 	}
 public:
-	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N, vector<double> &output)
+	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N)
 	{
 		n = _N;
 		int* ia = &_ig[0];
@@ -117,12 +119,16 @@ public:
 		double* di = &_diag[0];
 		double* al = &_gg[0];
 		double* x = new double[n];
-		double* x0 = new double[n] {1};
+		
 		double* b = &_d[0];
 		int m = _ig[_ig.size()- 1] - 1;
 		MSG(ia, ja, n, al, di, x0, b, maxiter, eps);
-		vector<double> out(x0, x0 + sizeof x0 / sizeof x0[0]);
-		output = out;
+	}
+
+	vector<double> get_q()
+	{
+		vector<double> output(x0, x0+sizeof(x0));
+		return output;
 	}
 
 };
