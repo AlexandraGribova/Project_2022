@@ -29,6 +29,7 @@ public:
 
 	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
 	std::vector<double> vectorD(std::vector<double> flux, std::vector<double> betta);
+	int GetMaxFluxElement(int elem);
 	std::vector<Element> Elements;
 	std::vector<NodeIDs> LL;
 	std::vector<Point2D> Nodes;

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <math.h>
 using namespace std;
 
 vector<int32_t> GridData::get_Sg(int elem, vector<double> flux)
@@ -33,6 +34,18 @@ int GridData::get_number(int elem, int edge)
 		if (Elements[elem].Edges[number] == edge) return number;
 
 	return -1;
+}
+int GridData::GetMaxFluxElement(int elem)
+{
+	int number;
+	int out =0;
+	for (number = 0; number < 4; number++)
+		if (Elements[elem].Edges[out] < Elements[elem].Edges[number])
+		{
+			out = number ;
+		}
+
+	return out;
 }
 
 vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
@@ -61,7 +74,6 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 
 	return d;
 }
-
 vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
 {
 	uint32_t n = Elements.size();
@@ -97,7 +109,6 @@ vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
 
 	return { edge[numedge][0],edge[numedge][1] };
 }
-
 int GridData::ig_creation(int elem1, int elem2, int edge, vector<int> &jg)//на вход подали два вектора с номерами граней и саму грань на которой мы тусим
 {
 	vector<uint32_t> vec;
@@ -131,7 +142,6 @@ void GridData::ig_jg_generation(vector<int>&ig, vector<int>& jg)
 		ig.push_back(ig_elem);
 	}
 }
-
 int GridData::find_elem(int edge, int elem1, int elem2)
 {
 	for (int i = 0; i < 4; i++)
@@ -141,8 +151,6 @@ int GridData::find_elem(int edge, int elem1, int elem2)
 	}
 	return -1;
 }
-
-
 void GridData::b_matrix_init(std::vector<double> &gg, std::vector<double> betta, std::vector<double> flux)
 {
 	uint32_t n = Elements.size();
@@ -181,14 +189,28 @@ void GridData::flux_balancer(vector<double> flux)
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
 	ig_jg_generation(ig, jg);
-	while()
+	double sum = 0;
+	int k = 1;
+	vector<int32_t> edgeSg(4, 0);
+	while( k != 0)
 	{
+		k = 0;
 		d = vectorD(flux, betta);
 		b_matrix_init(gg, betta, flux);
 		LOS_ los(ig, jg, gg, diag, d, quantity, q);
 		for (int i=0; i<n; i++)
 		{
-
+			for (int j = 0; j < 4; j++)
+			{
+				edgeSg = get_Sg(i, flux);
+				int numberMax = GetMaxFluxElement(i);
+				sum = (edgeSg[0] * abs(flux[Elements[i].Edges[0]]) + edgeSg[1] * abs(flux[Elements[i].Edges[1]]) + edgeSg[2] * abs(flux[Elements[i].Edges[2]]) + edgeSg[3] * abs(flux[Elements[i].Edges[3]]))/(flux[Elements[i].Edges[numberMax]]);
+				if (sum > eps_balance)
+				{
+					betta[i] /= 2;
+					k++;
+				}
+			}
 		}
 	}
 }
