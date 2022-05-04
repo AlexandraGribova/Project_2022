@@ -192,7 +192,14 @@ void GridData::flux_balancer(vector<double> flux)
 	double sum = 0;
 	int k = 1;
 	vector<int32_t> edgeSg(4, 0);
-	while( k != 0)
+	
+	
+	d = vectorD(flux, betta);
+	b_matrix_init(gg, betta, flux);
+	LOS_ los(ig, jg, gg, diag, d, quantity, q);
+	
+	
+	/*while (k != 0)
 	{
 		k = 0;
 		d = vectorD(flux, betta);
@@ -212,5 +219,5 @@ void GridData::flux_balancer(vector<double> flux)
 				}
 			}
 		}
-	}
+	}*/
 }

@@ -11,7 +11,7 @@ private:
 	int maxiter = 1000;
 	double nev = 0, eps = 1e-6;
 
-	double DotProduct(double* x, double* y, int n)
+	double DotProduct(vector<double> x, vector<double> y, int n)
 	{
 		double res = 0;
 		for (int i = 0; i < n; i++)
@@ -21,7 +21,7 @@ private:
 		return res;
 	}
 
-	void MatrixMult(int* ia, int* ja, int n, double* al, double* di, double* x, double* b)
+	void MatrixMult(vector<int> ia, vector<int> ja, int n, vector<double> al, vector<double> di, vector<double> x, vector<double>& b)
 	{
 		for (int i = 0; i < n; i++)
 		{
@@ -35,12 +35,14 @@ private:
 		}
 	}
 
-	int MSG(int* ia, int* ja, int n, double* al, double* di, double* x, double* b, int maxiter, double eps)
+	int MSG(vector<int> ia, vector<int> ja, int n, vector<double> al, vector<double> di, vector<double> &x, vector<double> b, int maxiter, double eps)
 	{
 		double bnorm = sqrt(DotProduct(b, b, n));
-		double* r = new double[n];
-		double* p = new double[n];
-		double* q = new double[n];
+		vector<double> r(n);
+		vector<double> p(n);
+		vector<double> q(n);
+
+		
 		MatrixMult(ia, ja, n, al, di, x, r);
 		for (int i = 0; i < n; i++)
 		{
@@ -71,7 +73,7 @@ private:
 		return k;
 	}
 
-	int LOS(int* ia, int* ja, int n, double* al, double* di, double* x, double* b, int maxiter, double eps)
+	/*int LOS(int* ia, int* ja, int n, double* al, double* di, double* x, double* b, int maxiter, double eps)
 	{
 		double bnorm = sqrt(DotProduct(b, b, n));
 		double* r = new double[n];
@@ -107,7 +109,7 @@ private:
 		}
 		printf_s("relative residual is: %e\n", rnorm / bnorm);
 		return k;
-	}
+	}*/
 public:
 	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t _N, vector<double> &output)
 	{
@@ -117,12 +119,13 @@ public:
 		double* di = &_diag[0];
 		double* al = &_gg[0];
 		double* x = new double[n];
-		double* x0 = new double[n] {1};
+		//double* x0 = new double[n] {1};
+		vector<double> x0(n, 1);
 		double* b = &_d[0];
 		int m = _ig[_ig.size()- 1] - 1;
-		MSG(ia, ja, n, al, di, x0, b, maxiter, eps);
-		vector<double> out(x0, x0 + sizeof x0 / sizeof x0[0]);
-		output = out;
+		MSG(_ig, _jg, n, _gg, _diag, x0, _d, maxiter, eps);
+		//vector<double> out(x0, x0 + sizeof x0 / sizeof x0[0]);
+		//output = out;
 	}
 
 };
