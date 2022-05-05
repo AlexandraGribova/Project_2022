@@ -70,44 +70,6 @@ private:
 		printf_s("relative residual is: %e\n", rnorm / bnorm);
 		return k;
 	}
-
-	/*int LOS(int* ia, int* ja, int n, double* al, double* di, double* x, double* b, int maxiter, double eps)
-	{
-		double bnorm = sqrt(DotProduct(b, b, n));
-		double* r = new double[n];
-		double* p = new double[n];
-		double* z = new double[n];
-		double* Ar = new double[n];
-		MatrixMult(ia, ja, n, al, di, x, r);
-		for (int i = 0; i < n; i++)
-		{
-			r[i] = b[i] - r[i];
-			z[i] = r[i];
-		}
-		MatrixMult(ia, ja, n, al, di, z, p);
-		int k = 0;
-		double alpha, betta, rnorm = sqrt(DotProduct(r, r, n));
-		while (k<maxiter && rnorm / bnorm>eps)
-		{
-			alpha = DotProduct(p, r, n) / DotProduct(p, p, n);
-			for (int i = 0; i < n; i++)
-			{
-				x[i] += alpha * z[i];
-				r[i] -= alpha * p[i];
-			}
-			MatrixMult(ia, ja, n, al, di, r, Ar);
-			betta = -DotProduct(p, Ar, n) / DotProduct(p, p, n);
-			rnorm = sqrt(DotProduct(r, r, n));
-			for (int i = 0; i < n; i++)
-			{
-				z[i] = r[i] + betta * z[i];
-				p[i] = Ar[i] + betta * p[i];
-			}
-			k++;
-		}
-		printf_s("relative residual is: %e\n", rnorm / bnorm);
-		return k;
-	}*/
 public:
 	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t n)
 	{		
