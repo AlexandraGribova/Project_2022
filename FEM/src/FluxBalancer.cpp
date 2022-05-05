@@ -40,7 +40,7 @@ int GridData::GetMaxFluxElement(int elem, vector<double> flux)
 	int number;
 	int out = 0;
 	for (number = 0; number < 4; number++)
-		if (flux[Elements[elem].Edges[out]] < flux[Elements[elem].Edges[number]])
+		if (abs(flux[Elements[elem].Edges[out]]) < abs(flux[Elements[elem].Edges[number]]))
 		{
 			out = number;
 		}
@@ -48,25 +48,33 @@ int GridData::GetMaxFluxElement(int elem, vector<double> flux)
 	return out;
 }
 
+/*double GridData::AveragedFluxElement(int elem)
+{
+
+}*/
+
 vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 {
 
 	uint32_t n = Elements.size();
-	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //êîëè÷åñòâî ãðàíåé
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //edge
 
 	vector<double> d(quantity, 0);
 	vector<int32_t> finit_elem(2, 0);
 	vector<int32_t> edgeSg(4, 0);
 
-	for (uint32_t i = 0; i < quantity; i++) // öèêë ïî âñåì ãðàíÿì
+	double averagedflux = 0;
+
+	for (uint32_t i = 0; i < quantity; i++)  // edge
 	{
-		finit_elem = GetNumberEdge(i);// äâà ýëåìåíòà äëÿ êîòîðûõ ãðàíü ñìåæíàÿ
-		for (uint32_t j = 0; j < 2; j++)// ïðîéòèñü ïî ýòèì äâóì ýëåìåíòàì
+		finit_elem = GetNumberEdge(i);
+		for (uint32_t j = 0; j < 2; j++) // elements
 		{
 			if (finit_elem[j] != -1)
 			{
 				edgeSg = get_Sg(j, flux);
-				d[i] -= betta[j] * (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
+
+				//d[i] -= betta[j] * (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]) / 4;
 			}
 		}
 
@@ -185,22 +193,29 @@ void GridData::flux_balancer(vector<double> flux)
 	double eps_balance = 1e-3;
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
-	vector<double> q;
+	vector<double> q(quantity, 0);
 	vector<int> ig;
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
 	bool Flag=false;
 	ig_jg_generation(ig, jg);
-	double sum = 0, global_sum=12;
+	double sum = 0, global_sum=5;
 	vector<int32_t> edgeSg(4, 0);
-
-	while (global_sum> eps_balance && Flag==false)
+	int	maxiter = 50;
+	LOS_ los;
+	int i = 0;
+	while (global_sum > eps_balance && Flag==false && i < maxiter)
 	{
+		i++;
 		Flag = true;
 		global_sum = 0;
 		d = vectorD(flux, betta);
+		if (los.get_DotProduct(d, quantity)< 0.0001)
+		{
+			break;
+		}
 		b_matrix_init(gg, betta, flux);
-		LOS_ los(ig, jg, gg, diag, d, quantity);
+		los.solve(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
 		for (int i = 0; i < n; i++)
 		{
@@ -210,7 +225,7 @@ void GridData::flux_balancer(vector<double> flux)
 			for (int k = 0; k < 4; k++) 
 				sum += edgeSg[k] * (abs(flux[Elements[i].Edges[k]]) + q[Elements[i].Edges[k]]);//небаланс
 			global_sum += betta[i]*abs(sum);
-			sum /= flux[Elements[i].Edges[numberMax]];
+			sum /=  abs(flux[Elements[i].Edges[numberMax]]);
 			if (sum > eps_balance)
 			{
 				betta[i] *= 2;
@@ -222,6 +237,7 @@ void GridData::flux_balancer(vector<double> flux)
 
 
 	vector<double> fflux(n, 0);
+	vector<double> edgefflux(quantity, 0);
 	for (int j = 0; j < n; j++)
 	{
 		edgeSg = get_Sg(j, flux);
@@ -229,6 +245,13 @@ void GridData::flux_balancer(vector<double> flux)
 			fflux[j] += edgeSg[k] * (abs(flux[Elements[j].Edges[k]]) + q[Elements[j].Edges[k]]);
 		
 	}
+	// пересчет граней 
+	for (int j = 0; j < n; j++)
+	{
+		for (int k = 0; k < 4; k++)
+			edgefflux[Elements[j].Edges[k]] =  (abs(flux[Elements[j].Edges[k]]) + q[Elements[j].Edges[k]]);
+	}
 
+	
 
 }

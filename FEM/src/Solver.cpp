@@ -71,15 +71,24 @@ private:
 		return k;
 	}
 public:
-	LOS_(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t n)
-	{		
+	void solve(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t n)
+	{
 		x0.resize(n, 1);
 		MSG(_ig, _jg, n, _gg, _diag, x0, _d, maxiter, eps);
 	}
+	LOS_()
+	{
 
+	}
 	vector<double> get_q()
 	{
 		return x0;
 	}
+
+	double get_DotProduct(vector<double> d, int n)
+	{
+		return sqrt(DotProduct(d, d, n));
+	}
+
 	
 };
