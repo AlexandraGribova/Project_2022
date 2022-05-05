@@ -66,7 +66,7 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 			if (finit_elem[j] != -1)
 			{
 				edgeSg = get_Sg(j, flux);
-				d[i] += betta[j] * (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
+				d[i]-= betta[j] * (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
 			}
 		}
 
@@ -193,6 +193,14 @@ void  GridData::get_diag(vector<double>& diag, vector<double> betta)
 	}
 }
 
+double norm(vector<double> q)
+{
+	double norm=0;
+	for (int i = 0; i < q.size(); i++)
+		norm += q[i] * q[i];
+	return sqrt(norm);
+}
+
 void GridData::flux_balancer(vector<double> flux)
 {
 	uint32_t n = Elements.size();//êîëè÷åñòâî ýëåìåíòîâ
@@ -200,7 +208,8 @@ void GridData::flux_balancer(vector<double> flux)
 	double eps_balance = 1e-3;
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
-	vector<double> q;
+	vector<double> q, q_min;
+	double q_norm=0, q_min_norm= 1.79e+305;
 	vector<int> ig;
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
@@ -208,16 +217,28 @@ void GridData::flux_balancer(vector<double> flux)
 	ig_jg_generation(ig, jg);
 	double sum = 0, global_sum=1;
 	vector<int32_t> edgeSg(4, 0);
-
+	LOS_ los;
 	while (global_sum> eps_balance && Flag==false)
 	{
 		Flag = true;
 		global_sum = 0;
 		d = vectorD(flux, betta);
+		if (los.get_DotProduct(d, quantity) < 0.0001)
+		{
+			q.clear();
+			for (int h = 0; h < quantity; h++) q.push_back(0);
+			break;
+		}
 		b_matrix_init(gg, betta, flux);
 		//get_diag(diag, betta);
-		LOS_ los(ig, jg, gg, diag, d, quantity);
+		los.solve(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
+		q_norm = norm(q);
+		if (q_norm <= q_min_norm)
+		{
+			q_min = q;
+			q_min_norm = q_norm;
+		}
 		for (int i = 0; i < n; i++)
 		{
 			sum = 0;
@@ -237,7 +258,7 @@ void GridData::flux_balancer(vector<double> flux)
 		}
 	}
 
-
+	q = q_min;
 	vector<double> fflux(n, 0);
 	for (int j = 0; j < n; j++)
 	{
