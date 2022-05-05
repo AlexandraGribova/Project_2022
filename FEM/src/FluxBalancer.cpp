@@ -40,7 +40,7 @@ int GridData::GetMaxFluxElement(int elem, vector<double> flux)
 	int number;
 	int out = 0;
 	for (number = 0; number < 4; number++)
-		if (flux[Elements[elem].Edges[out]] < flux[Elements[elem].Edges[number]])
+		if (abs(flux[Elements[elem].Edges[out]] ) < abs(flux[Elements[elem].Edges[number]]))
 		{
 			out = number;
 		}
@@ -178,11 +178,26 @@ void GridData::b_matrix_init(std::vector<double>& gg, std::vector<double> betta,
 			}
 	}
 }
+
+void  GridData::get_diag(vector<double>& diag, vector<double> betta)
+{
+	uint32_t n = Elements.size();//êîëè÷åñòâî ýëåìåíòîâ
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //êîëè÷åñòâî ãðàíåé
+	vector<int32_t> finit_elem;
+	finit_elem.resize(2);
+	for (int i = 0; i < quantity; i++)
+	{
+		finit_elem = GetNumberEdge(i);
+		if (finit_elem[1] == -1) diag[i] = 2 * betta[finit_elem[0]];
+		else diag[i] = betta[finit_elem[0]]+ betta[finit_elem[1]];
+	}
+}
+
 void GridData::flux_balancer(vector<double> flux)
 {
 	uint32_t n = Elements.size();//êîëè÷åñòâî ýëåìåíòîâ
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //êîëè÷åñòâî ãðàíåé
-	double eps_balance = 1e-6;
+	double eps_balance = 1e-3;
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 1.0);
 	vector<double> q;
@@ -200,6 +215,7 @@ void GridData::flux_balancer(vector<double> flux)
 		global_sum = 0;
 		d = vectorD(flux, betta);
 		b_matrix_init(gg, betta, flux);
+		//get_diag(diag, betta);
 		LOS_ los(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
 		for (int i = 0; i < n; i++)
@@ -210,9 +226,7 @@ void GridData::flux_balancer(vector<double> flux)
 			for (int k = 0; k < 4; k++) 
 				sum += edgeSg[k] * (abs(flux[Elements[i].Edges[k]]) + q[Elements[i].Edges[k]]);//небаланс
 			global_sum += betta[i]*abs(sum);
-			sum /= flux[Elements[i].Edges[numberMax]];
-
-			//sum = ((edgeSg[0] * abs(flux[Elements[i].Edges[0]]) + q[Elements[i].Edges[0]]) + (edgeSg[1] * abs(flux[Elements[i].Edges[1]]) + q[Elements[i].Edges[1]]) + (edgeSg[2] * abs(flux[Elements[i].Edges[2]])+q[Elements[i].Edges[2]]) + (edgeSg[3] * abs(flux[Elements[i].Edges[3]]))/(flux[Elements[i].Edges[numberMax]]+q[Elements[i].Edges[3]]));
+			sum /= abs(flux[Elements[i].Edges[numberMax]]);
 
 			if (sum > eps_balance)
 			{
