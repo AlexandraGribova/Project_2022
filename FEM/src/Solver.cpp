@@ -24,9 +24,9 @@ private:
 		for (int i = 0; i < n; i++)
 		{
 			b[i] = x[i] * di[i];
-			for (int k = ia[i] - 1; k < ia[i + 1] - 1; k++)
+			for (int k = ia[i]; k < ia[i + 1]; k++)
 			{
-				int j = ja[k] - 1;
+				int j = ja[k];
 				b[i] += al[k] * x[j];
 				b[j] += al[k] * x[i];
 			}
@@ -89,6 +89,7 @@ public:
 	{
 		return sqrt(DotProduct(d, d, n));
 	}
+	
 
 
 };

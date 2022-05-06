@@ -14,9 +14,9 @@
 #include "GridData.h"
 #include "FEMSolver.h"
 
-double testFunction(double x, double y) { return x*x; }
+double testFunction(double x, double y) { return x; }
 // Это её лапласиан P
-double rhsFunction(double x, double y) { return 2; }
+double rhsFunction(double x, double y) { return 0; }
 
 
 int main()
