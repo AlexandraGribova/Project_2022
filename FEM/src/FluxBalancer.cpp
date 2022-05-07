@@ -53,7 +53,7 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 
 	uint32_t n = Elements.size();
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //êîëè÷åñòâî ãðàíåé
-	//int Sg_num;
+	int Sg_num;
 	vector<double> d(quantity, 0);
 	vector<int32_t> finit_elem(2, 0);
 	vector<int32_t> edgeSg(4, 0);
@@ -65,9 +65,9 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 		{
 			if (finit_elem[j] != -1)
 			{
-				//Sg_num = get_number(finit_elem[j], i);
+				Sg_num = get_number(finit_elem[j], i);
 				edgeSg = get_Sg(j, flux);
-				d[i]-= betta[j] * /*edgeSg[Sg_num] **/ (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
+				d[i]-= betta[j] * edgeSg[Sg_num] * (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
 			}
 		}
 
@@ -247,7 +247,7 @@ void GridData::flux_balancer(vector<double> flux)
 			break;
 		}
 		b_matrix_init(gg, betta, flux);
-		//get_diag(diag, betta);//
+		get_diag(diag, betta);//
 		los.solve(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
 		for (int i = 0; i < n; i++)
