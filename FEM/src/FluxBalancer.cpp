@@ -67,7 +67,7 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 			{
 				//Sg_num = get_number(finit_elem[j], i);
 				edgeSg = get_Sg(j, flux);
-				d[i]-= betta[j] * /*edgeSg[Sg_num] * */(edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
+				d[i]-= betta[j] * /*edgeSg[Sg_num] **/ (edgeSg[0] * flux[Elements[finit_elem[j]].Edges[0]] + edgeSg[1] * flux[Elements[finit_elem[j]].Edges[1]] + edgeSg[2] * flux[Elements[finit_elem[j]].Edges[2]] + edgeSg[3] * flux[Elements[finit_elem[j]].Edges[3]]);
 			}
 		}
 
@@ -121,7 +121,7 @@ int GridData::ig_creation(int elem1, int elem2, int edge, vector<int>& jg)//íà
 		if (vec[i] < edge)
 		{
 			number++;
-			jg.push_back(vec[i] + 1);
+			jg.push_back(vec[i]);
 		}
 	return number;
 }
