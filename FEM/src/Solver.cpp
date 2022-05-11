@@ -7,7 +7,7 @@ private:
 	vector<double> x0;
 	int n, m;
 	int maxiter = 1000;
-	double nev = 0, eps = 1e-6;
+	double nev = 0, eps = 1e-9;
 
 	double DotProduct(vector<double> x, vector<double> y, int n)
 	{
@@ -68,13 +68,16 @@ private:
 			k++;
 		}
 		printf_s("relative residual is: %e\n", rnorm / bnorm);
+		printf_s("iter: %d\n", k);
 		return k;
 	}
 public:
 	void solve(vector<int> _ig, vector<int> _jg, vector<double> _gg, vector<double> _diag, vector<double> _d, uint32_t n)
 	{
 		x0.resize(n, 1);
+		for (int i = 0; i < n; i++) x0[i] = 1;
 		MSG(_ig, _jg, n, _gg, _diag, x0, _d, maxiter, eps);
+
 	}
 	LOS_()
 	{

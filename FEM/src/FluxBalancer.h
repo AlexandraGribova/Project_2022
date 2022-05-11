@@ -1,8 +1,9 @@
-#pragma once
-class FluxBalancer
+﻿#pragma once
+#include "GridData.h"
+using namespace std;
+
+class FluxBalancer 
 {
-public:
-private:
 
 };
 
