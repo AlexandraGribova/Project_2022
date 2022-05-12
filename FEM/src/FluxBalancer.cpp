@@ -79,6 +79,35 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 
 	return d;
 }
+void GridData::Change_q(vector<double>& q)
+{
+	vector<int> border;
+	int elem = 0;
+	auto nX = Elements[0].Nodes[2];
+	uint32_t n = Elements.size();
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1;
+	for (elem; elem < nX; elem++)
+		border.push_back(elem);
+	for (elem--; elem < quantity - nX + 1;)
+	{
+		elem += nX - 1;
+		border.push_back(elem);
+		if (elem+nX == quantity) break;
+		elem += nX;
+		border.push_back(elem);
+	}
+	for (elem++; elem < quantity;elem++)
+		border.push_back(elem);
+
+	for (int i = 0; i < quantity; i++)
+		for(int j=0; j<border.size(); j++)
+			if (i == border[j])
+			{
+				q[i] = 0;
+				break;
+			}
+}
+
 vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
 {
 	uint32_t n = Elements.size();
@@ -207,6 +236,7 @@ void GridData::flux_balancer(vector<double> flux)
 	vector<double> d(quantity, 0);
 	vector<double> betta(n, 0.5);
 	vector<double> q;
+	vector<int> border;
 	vector<int> ig;
 	vector<int> jg;
 	vector<double> gg, diag(quantity, 2);
@@ -219,14 +249,17 @@ void GridData::flux_balancer(vector<double> flux)
 
 
 	vector<double> neb(n, 0);
-	flux[10] += 5;
-	flux[25] += 5;
+	flux[15] += 50;
+	/*flux[35] += 0.1;
+	flux[48] += 0.1;
+	flux[63] += 0.1;
+	flux[104] += 0.1;*/
 	for (int j = 0; j < n; j++)
 	{
 		edgeSg = get_Sg(j, flux);
 		for (int k = 0; k < 4; k++)
 			neb[j] += edgeSg[k] * (abs(flux[Elements[j].Edges[k]]));
-		cout << std::uppercase << std::scientific << neb[j] << endl;
+		//cout << std::uppercase << std::scientific << neb[j] << endl;
 	}
 	int iter = 0;
 	while (global_sum> eps_balance && Flag==false)
@@ -256,6 +289,9 @@ void GridData::flux_balancer(vector<double> flux)
 		get_diag(diag, betta);
 		los.solve(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
+		Change_q(q);//приравниваем надбавку к 0 на границе области
+			
+		
 		for (int i = 0; i < n; i++)
 		{
 			sum = 0;
@@ -280,8 +316,10 @@ void GridData::flux_balancer(vector<double> flux)
 	for (int j = 0; j < n; j++)
 	{
 		edgeSg = get_Sg(j, flux);
-		for (int k = 0; k < 4; k++) 
-			fflux[j] += edgeSg[k] * (abs(flux[Elements[j].Edges[k]]) + q[Elements[j].Edges[k]]);		
+		for (int k = 0; k < 4; k++)
+			fflux[j] += edgeSg[k] * (abs(flux[Elements[j].Edges[k]]) + q[Elements[j].Edges[k]]);
+		
+		//cout << std::uppercase << std::scientific << fflux[j] << endl;
 	}
 
 	vector<double> ffluxedge(quantity, 0);
@@ -289,7 +327,7 @@ void GridData::flux_balancer(vector<double> flux)
 	{
 		
 			ffluxedge[j] = (abs(flux[j]) + q[j]);
-
+			cout << std::uppercase << std::scientific << q[j] << endl;
 	}
 
 }
