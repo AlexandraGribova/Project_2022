@@ -90,14 +90,20 @@ void GridData::Change_q(vector<double>& q)
 		border.push_back(elem);
 	for (elem--; elem < quantity - nX + 1;)
 	{
-		elem += nX - 1;
+		
+		if (elem + 2 * nX - 1 >= quantity) break;
+		elem += 2 * nX - 1;
 		border.push_back(elem);
-		if (elem+nX == quantity) break;
+		/*elem += nX - 1;
+		border.push_back(elem);
+		if (elem+nX == quantity) break; //Это для всех фиксированных грвниц
 		elem += nX;
-		border.push_back(elem);
+		border.push_back(elem);*/
 	}
-	for (elem++; elem < quantity;elem++)
+	for (elem+=nX; elem < quantity; elem++)
 		border.push_back(elem);
+	/*for (elem++; elem < quantity;elem++)
+		border.push_back(elem);*/
 
 	for (int i = 0; i < quantity; i++)
 		for(int j=0; j<border.size(); j++)
@@ -275,7 +281,8 @@ void GridData::flux_balancer(vector<double> flux)
 			break;
 		}
 		b_matrix_init(gg, betta, flux);
-		for (int i = 0; i < NeumannConditions.size(); i++)
+		
+		for (int i = 0; i < NeumannConditions.size(); i+=4)
 		{
 			int global_edge;
 			for (int k = 0; k < 4; k++)
@@ -290,7 +297,16 @@ void GridData::flux_balancer(vector<double> flux)
 		los.solve(ig, jg, gg, diag, d, quantity);
 		q = los.get_q();
 		Change_q(q);//приравниваем надбавку к 0 на границе области
-			
+		for (int i = 0; i < NeumannConditions.size(); i+=4)
+		{
+			int global_edge;
+			for (int k = 0; k < 4; k++)
+			{
+				global_edge = Elements[NeumannConditions[i].Element].Edges[k];
+				q[global_edge] = 0;
+			}
+
+		}
 		
 		for (int i = 0; i < n; i++)
 		{
