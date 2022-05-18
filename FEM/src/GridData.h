@@ -27,8 +27,10 @@ public:
 	int find_elem(int edge, int elem1, int elem2);
 	int get_number(int elem, int edge);
 	int GetMaxFluxElement(int elem, std::vector<double> flux);
-	void  get_diag(std::vector<double>& diag, std::vector<double> betta);
+	void  get_diag(std::vector<double>& diag, std::vector<double> betta, std::vector<double> flux, std::vector<double> q);
 	void Change_q(std::vector<double>& q);
+	void get_border(std::vector<int>& border, std::vector<int>& right_border);
+	void  change_border(std::vector<double> &flux);
 
 	std::vector<int32_t> GetNumberEdge(uint32_t numedge);
 	std::vector<double> vectorD(std::vector<double> flux, std::vector<double> betta);

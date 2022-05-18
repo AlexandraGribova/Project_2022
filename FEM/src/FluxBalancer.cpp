@@ -79,10 +79,10 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 
 	return d;
 }
-void GridData::Change_q(vector<double>& q)
+
+void GridData :: get_border(vector<int> &border, vector<int>& right_border)
 {
-	vector<int> border;
-	int elem = 0;
+	int elem = 0, elem_right = 0;
 	auto nX = Elements[0].Nodes[2];
 	uint32_t n = Elements.size();
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1;
@@ -90,20 +90,26 @@ void GridData::Change_q(vector<double>& q)
 		border.push_back(elem);
 	for (elem--; elem < quantity - nX + 1;)
 	{
-		
+
 		if (elem + 2 * nX - 1 >= quantity) break;
+		elem_right = elem + nX - 1;
 		elem += 2 * nX - 1;
 		border.push_back(elem);
-		/*elem += nX - 1;
-		border.push_back(elem);
-		if (elem+nX == quantity) break; //Это для всех фиксированных грвниц
-		elem += nX;
-		border.push_back(elem);*/
+		right_border.push_back(elem_right);
 	}
-	for (elem+=nX; elem < quantity; elem++)
+	elem_right = elem + nX - 1;
+	right_border.push_back(elem_right);
+	for (elem += nX; elem < quantity; elem++)
 		border.push_back(elem);
-	/*for (elem++; elem < quantity;elem++)
-		border.push_back(elem);*/
+
+}
+
+void GridData::Change_q(vector<double>& q)
+{
+	vector<int> border, right_border;
+	get_border(border, right_border);
+	uint32_t n = Elements.size();
+	uint32_t quantity = Elements[n - 1].Edges[3] + 1;
 
 	for (int i = 0; i < quantity; i++)
 		for(int j=0; j<border.size(); j++)
@@ -111,7 +117,7 @@ void GridData::Change_q(vector<double>& q)
 			{
 				q[i] = 0;
 				break;
-			}
+			}	
 }
 
 vector<int32_t> GridData::GetNumberEdge(uint32_t numedge)
@@ -219,7 +225,7 @@ void GridData::b_matrix_init(std::vector<double>& gg, std::vector<double> betta,
 	}
 }
 
-void  GridData::get_diag(vector<double>& diag, vector<double> betta)
+void  GridData::get_diag(vector<double>& diag, vector<double> betta, vector<double> flux, vector<double> q)
 {
 	uint32_t n = Elements.size();//êîëè÷åñòâî ýëåìåíòîâ
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1; //êîëè÷åñòâî ãðàíåé
@@ -231,6 +237,55 @@ void  GridData::get_diag(vector<double>& diag, vector<double> betta)
 		if (finit_elem[1] == -1) diag[i] = 2 * betta[finit_elem[0]];
 		else diag[i] = betta[finit_elem[0]]+ betta[finit_elem[1]];
 	}
+
+	vector<int> edgeSg(4, 0);
+	vector<int> elements(2, 0);
+	vector<double> neb_elem(2, 0);
+
+	if (q.size() != 0) 
+	{
+		for (int j = 0; j < quantity; j++)
+		{
+			elements = GetNumberEdge(j);
+			if (elements[1] == -1)
+				diag[j] += 1;
+			else
+			{
+				for (int k = 0; k < 2; k++)
+				{
+					edgeSg = get_Sg(elements[k], flux);
+					for (int m = 0; m < 4; m++)
+						neb_elem[k] += edgeSg[m] * (abs(flux[Elements[elements[k]].Edges[m]]) + q[Elements[elements[k]].Edges[m]]);
+				}
+				diag[j] += (neb_elem[0] + neb_elem[1]) / (2 * neb_elem[0] * neb_elem[1]);
+			}
+					
+		}	
+		
+
+	}
+
+
+}
+
+void  GridData::change_border(vector<double> &flux)
+{
+	vector<int> border, right_border;
+	get_border(border, right_border);
+	//считаем общий небаланс
+	//если он не 0 то его величину делим на число правых граней и прибавляем к q правой границы
+	vector<int32_t> edgeSg(4, 0);
+	double unbalance = 0;
+	border.insert(border.end(), right_border.begin(), right_border.end());
+	int this_elem;
+	for (int j = 0; j < border.size(); j++)
+	{
+		this_elem = GetNumberEdge(border[j])[0];
+		edgeSg = get_Sg(this_elem, flux);
+		unbalance += edgeSg[get_number(this_elem, border[j])] * (abs(flux[border[j]]));//локальный номер грани
+	}
+	for (int j = 0; j < right_border.size(); j++)
+		flux[right_border[j]] -= unbalance / right_border.size();
 }
 
 
@@ -255,11 +310,11 @@ void GridData::flux_balancer(vector<double> flux)
 
 
 	vector<double> neb(n, 0);
-	flux[15] += 50;
-	/*flux[35] += 0.1;
-	flux[48] += 0.1;
-	flux[63] += 0.1;
-	flux[104] += 0.1;*/
+	flux[28] += 10;
+	flux[13] += 50;
+	flux[0] += 10;
+	//flux[17] += 50;
+	change_border(flux);//балансировка гарницы
 	for (int j = 0; j < n; j++)
 	{
 		edgeSg = get_Sg(j, flux);
@@ -268,6 +323,7 @@ void GridData::flux_balancer(vector<double> flux)
 		//cout << std::uppercase << std::scientific << neb[j] << endl;
 	}
 	int iter = 0;
+	
 	while (global_sum> eps_balance && Flag==false)
 	{
 		iter++;
@@ -293,8 +349,8 @@ void GridData::flux_balancer(vector<double> flux)
 			}
 		
 		}
-		get_diag(diag, betta);
-		los.solve(ig, jg, gg, diag, d, quantity);
+		get_diag(diag, betta, flux, q);
+		los.solve(ig, jg, gg, diag, d, quantity);		
 		q = los.get_q();
 		Change_q(q);//приравниваем надбавку к 0 на границе области
 		for (int i = 0; i < NeumannConditions.size(); i+=4)
