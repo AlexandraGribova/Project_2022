@@ -80,7 +80,7 @@ vector<double> GridData::vectorD(vector<double> flux, vector<double> betta)
 	return d;
 }
 
-void GridData :: get_border(vector<int> &border, vector<int>& right_border)
+void GridData :: get_border(vector<int> &border, vector<int>& right_border, vector<int>& left_border)
 {
 	int elem = 0, elem_right = 0;
 	auto nX = Elements[0].Nodes[2];
@@ -88,6 +88,7 @@ void GridData :: get_border(vector<int> &border, vector<int>& right_border)
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1;
 	for (elem; elem < nX; elem++)
 		border.push_back(elem);
+	left_border.push_back(elem-1);
 	for (elem--; elem < quantity - nX + 1;)
 	{
 
@@ -95,6 +96,7 @@ void GridData :: get_border(vector<int> &border, vector<int>& right_border)
 		elem_right = elem + nX - 1;
 		elem += 2 * nX - 1;
 		border.push_back(elem);
+		left_border.push_back(elem);
 		right_border.push_back(elem_right);
 	}
 	elem_right = elem + nX - 1;
@@ -106,8 +108,8 @@ void GridData :: get_border(vector<int> &border, vector<int>& right_border)
 
 void GridData::Change_q(vector<double>& q)
 {
-	vector<int> border, right_border;
-	get_border(border, right_border);
+	vector<int> border, right_border, left_border;
+	get_border(border, right_border, left_border);
 	uint32_t n = Elements.size();
 	uint32_t quantity = Elements[n - 1].Edges[3] + 1;
 
@@ -270,8 +272,8 @@ void  GridData::get_diag(vector<double>& diag, vector<double> betta, vector<doub
 
 void  GridData::change_border(vector<double> &flux)
 {
-	vector<int> border, right_border;
-	get_border(border, right_border);
+	vector<int> border, right_border, left_border;
+	get_border(border, right_border, left_border);
 	//считаем общий небаланс
 	//если он не 0 то его величину делим на число правых граней и прибавляем к q правой границы
 	vector<int32_t> edgeSg(4, 0);
@@ -284,8 +286,12 @@ void  GridData::change_border(vector<double> &flux)
 		edgeSg = get_Sg(this_elem, flux);
 		unbalance += edgeSg[get_number(this_elem, border[j])] * (abs(flux[border[j]]));//локальный номер грани
 	}
+	if(unbalance<0)
 	for (int j = 0; j < right_border.size(); j++)
 		flux[right_border[j]] -= unbalance / right_border.size();
+	else
+		for (int j = 0; j < right_border.size(); j++)
+			flux[left_border[j]] += unbalance / left_border.size();
 }
 
 
@@ -310,9 +316,9 @@ void GridData::flux_balancer(vector<double> flux)
 
 
 	vector<double> neb(n, 0);
-	flux[28] += 10;
-	flux[13] += 50;
-	flux[0] += 10;
+	//flux[28] += 10;
+	//flux[13] += 50;
+	//flux[0] += 10;
 	//flux[17] += 50;
 	change_border(flux);//балансировка гарницы
 	for (int j = 0; j < n; j++)
